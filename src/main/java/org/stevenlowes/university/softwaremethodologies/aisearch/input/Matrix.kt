@@ -1,6 +1,6 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch.input
 
-class Matrix(){
+class Matrix(val name: String) {
     private val distances: MutableMap<UndirectionalPair<Int, Int>, Int> = mutableMapOf()
 
     /**
@@ -8,11 +8,9 @@ class Matrix(){
      *
      * @param distancesToNew the distancesToNew to the new city from all old cities
      */
-    fun addCity(distancesToNew: Map<Int, Int>){
+    fun addCity(newCityId: Int, distancesToNew: Map<Int, Int>) {
         //Assert that the map passed contains all current cities
         assert(currentCities == distancesToNew.keys)
-
-        val newCityId = nextCityId
 
         val newDistances = distancesToNew.mapKeys { UndirectionalPair(newCityId, it.key) }
         distances.putAll(newDistances)
@@ -24,8 +22,6 @@ class Matrix(){
     }
 
     val currentCities: Set<Int> get() = distances.keys.flatMap { listOf(it.first, it.second) }.toSet()
-
-    val nextCityId: Int = currentCities.size
 }
 
 data class UndirectionalPair<out A: Any, out B: Any>(val first: A, val second: B){
