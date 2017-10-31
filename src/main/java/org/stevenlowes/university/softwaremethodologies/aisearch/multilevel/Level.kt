@@ -1,11 +1,13 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch.multilevel
 
-class Level(val nodes: Set<Node>) {
+class Level(matrix: Matrix) {
 
-    val distances: MutableMap<Node, MutableMap<Node, Float>> = mutableMapOf()
+    val nodes: MutableSet<Node> = mutableSetOf()
+    lateinit var distances: Map<Node, Map<Node, Float>> private set
 
-    fun addCities(newDistances: MutableMap<Node, MutableMap<Node, Float>>) {
-        distances.putAll(newDistances)
+    fun addCities(newDistances: Map<Node, Map<Node, Float>>) {
+        distances = newDistances
+        nodes.addAll(newDistances.keys)
     }
 
     fun distanceBetween(node1: Node, node2: Node): Float {

@@ -1,13 +1,17 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch.multilevel
 
-class Matrix(rootLevel: Level, val solver: Solver, val grouper: Grouper) {
+class Matrix(val rootLevelSolver: RootLevelSolver, val upperLevelSolver: UpperLevelSolver, val grouper: Grouper) {
     val levels: MutableList<Level> = mutableListOf()
 
-    init {
-        levels.add(rootLevel)
+    fun setRootLevel(level: Level) {
+        levels.add(level)
     }
 
     fun createLevel() {
-        levels.add(levels.last().createParent())
+        levels.add(grouper.group(levels.last().nodes))
+    }
+
+    fun solve(): List<Node> {
+
     }
 }

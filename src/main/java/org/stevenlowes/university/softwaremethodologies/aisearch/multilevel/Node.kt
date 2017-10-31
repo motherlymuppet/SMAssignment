@@ -5,6 +5,4 @@ abstract class Node(val id: Int, val level: Level) {
         assert(level == other.level)
         level.distanceBetween(this, other)
     }
-
-    abstract fun solve(entryNode: Node): List<Node>
 }

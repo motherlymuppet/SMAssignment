@@ -1,6 +1,8 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch.input
 
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Level
+import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Node
+import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.RootNode
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.util.*
@@ -17,25 +19,29 @@ class TextParser() {
             val size = delimitedInput[1].substringAfter("SIZE=").toInt()
             val numberStrings = delimitedInput.drop(2)
             val cleanedNumberStrings = numberStrings.map { it.replace(Regex("[^0-9]"), "") }
-            val numbers = Stack<Int>()
-            numbers.addAll(cleanedNumberStrings.map { it.toInt() })
-            val matrix = createMatrix(name, size, numbers)
-            return matrix
+            val numbers = Stack<Float>()
+            numbers.addAll(cleanedNumberStrings.map { it.toFloat() })
+            val level = Level()
+            createMatrix(size, numbers, level)
+            return level
         }
 
-        fun createMatrix(name: String, size: Int, numbers: Stack<Int>): Level {
-            val distances = MutableMap<Int, MutableMap<Int, Int>>
-            val matrix = Matrix(name)
+        fun createMatrix(size: Int, numbers: Stack<Float>, level: Level) {
+            val matrix: MutableMap<Node, Map<Node, Float>> = mutableMapOf()
             val partitionedNumbers = partitionNumbers(numbers, size).withIndex()
             partitionedNumbers.forEach {
                 val index = size - it.index
-                val distances = ((index + 1)..(size + 1)).zip(it.value).toMap()
-                matrix.addCity(index, distances)
+                val distances: Map<Node, Float> = ((index + 1)..(size + 1)).zip(it.value).toMap().mapKeys {
+                    RootNode(it.key,
+                             level)
+                }
+                val node = RootNode(index, level)
+                matrix.put(node, distances)
             }
-            return matrix
+            level.addCities(matrix.toMap())
         }
 
-        fun partitionNumbers(numbers: Stack<Int>, size: Int): List<List<Int>> {
+        fun partitionNumbers(numbers: Stack<Float>, size: Int): List<List<Float>> {
             assert((size * (size - 1)) / 2 == numbers.size)
             return (0..(size - 1)).map {
                 buildSequence {
