@@ -10,7 +10,7 @@ class Matrix(val name: String) {
      */
     fun addCity(newCityId: Int, distancesToNew: Map<Int, Int>) {
         //Assert that the map passed contains all current cities
-        assert(currentCities == distancesToNew.keys)
+        assert(cities == distancesToNew.keys)
 
         val newDistances = distancesToNew.mapKeys { UndirectionalPair(newCityId, it.key) }
         distances.putAll(newDistances)
@@ -21,7 +21,7 @@ class Matrix(val name: String) {
         return distances[pair]!!
     }
 
-    val currentCities: Set<Int> get() = distances.keys.flatMap { listOf(it.first, it.second) }.toSet()
+    val cities: Set<Int> get() = distances.keys.flatMap { listOf(it.first, it.second) }.toSet()
 }
 
 data class UndirectionalPair<out A: Any, out B: Any>(val first: A, val second: B){
