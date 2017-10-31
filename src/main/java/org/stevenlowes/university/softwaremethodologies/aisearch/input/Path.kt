@@ -1,8 +1,11 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch.input
 
-data class Path(val cities: List<Int>, val matrix: Matrix) {
-    val distance: Int by lazy {
-        val indexed = cities.withIndex().toList()
+import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Level
+import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Node
+
+data class Path(val nodes: List<Node>, val level: Level) {
+    val distance: Float by lazy {
+        val indexed = nodes.withIndex().toList()
         val pairs = indexed.map {
             val index = it.index
             val first = indexed[index]
@@ -15,7 +18,7 @@ data class Path(val cities: List<Int>, val matrix: Matrix) {
             }
         }.filterNotNull()
 
-        val distances = pairs.map { (first, second) -> matrix.directDistance(first, second) }
+        val distances = pairs.map { (first, second) -> level.distanceBetween(first, second) }
         val sum = distances.sum()
         return@lazy sum
     }

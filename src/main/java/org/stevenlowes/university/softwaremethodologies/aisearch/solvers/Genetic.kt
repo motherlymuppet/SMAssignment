@@ -1,8 +1,6 @@
-package org.stevenlowes.university.softwaremethodologies.aisearch.algorithms
+package org.stevenlowes.university.softwaremethodologies.aisearch.solvers
 
-import org.stevenlowes.university.softwaremethodologies.aisearch.input.Matrix
 import org.stevenlowes.university.softwaremethodologies.aisearch.input.Path
-import org.stevenlowes.university.softwaremethodologies.aisearch.shuffle
 import java.util.*
 import java.util.stream.Collectors
 
@@ -24,8 +22,8 @@ class Genetic(val matrix: Matrix, val mutationRate: Float, val generationSurvivo
         assert(mammy.matrix == daddy.matrix)
         assert(mammy.matrix == matrix)
 
-        val mPath = mammy.cities
-        val dPath = daddy.cities
+        val mPath = mammy.nodes
+        val dPath = daddy.nodes
 
         val size = matrix.cities.size
         assert(mPath.size == size)
@@ -81,14 +79,8 @@ class Genetic(val matrix: Matrix, val mutationRate: Float, val generationSurvivo
                 bestOverall = best
                 lastChanged = generation
             }
-            println("Min distance: ${best.distance}. Path: ${best.cities}")
+            println("Min distance: ${best.distance}. Path: ${best.nodes}")
             println("")
-            /*
-    if(generation - lastChanged > 100){
-        println("No improvement for 100 generations. Terminating early.")
-        return bestOverall!!
-    }
-    */
         }
         return bestOverall!!
     }

@@ -1,5 +1,6 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch.input
 
+import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Level
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.util.*
@@ -7,7 +8,7 @@ import kotlin.coroutines.experimental.buildSequence
 
 class TextParser() {
     companion object {
-        fun parseFile(filename: String): Matrix {
+        fun parseFile(filename: String): Level {
             val file = File(filename)
             val dirtyInput: String = file.readText(StandardCharsets.UTF_8)
             val cleanInput = dirtyInput.replace(Regex("[ \t\n\r]"), "")
@@ -22,7 +23,8 @@ class TextParser() {
             return matrix
         }
 
-        fun createMatrix(name: String, size: Int, numbers: Stack<Int>): Matrix {
+        fun createMatrix(name: String, size: Int, numbers: Stack<Int>): Level {
+            val distances = MutableMap<Int, MutableMap<Int, Int>>
             val matrix = Matrix(name)
             val partitionedNumbers = partitionNumbers(numbers, size).withIndex()
             partitionedNumbers.forEach {
