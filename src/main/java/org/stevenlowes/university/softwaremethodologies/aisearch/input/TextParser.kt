@@ -15,7 +15,6 @@ class TextParser() {
             val dirtyInput: String = file.readText(StandardCharsets.UTF_8)
             val cleanInput = dirtyInput.replace(Regex("[ \t\n\r]"), "")
             val delimitedInput = cleanInput.split(",")
-            val name = delimitedInput[0].substringAfter("NAME=")
             val size = delimitedInput[1].substringAfter("SIZE=").toInt()
             val numberStrings = delimitedInput.drop(2)
             val cleanedNumberStrings = numberStrings.map { it.replace(Regex("[^0-9]"), "") }
@@ -26,7 +25,7 @@ class TextParser() {
             return level
         }
 
-        fun createMatrix(size: Int, numbers: Stack<Float>, level: Level) {
+        private fun createMatrix(size: Int, numbers: Stack<Float>, level: Level) {
             val matrix: MutableMap<Node, Map<Node, Float>> = mutableMapOf()
             val partitionedNumbers = partitionNumbers(numbers, size).withIndex()
             partitionedNumbers.forEach {
@@ -38,10 +37,10 @@ class TextParser() {
                 val node = RootNode(index, level)
                 matrix.put(node, distances)
             }
-            level.addCities(matrix.toMap())
+            level.addNodes(matrix.toMap())
         }
 
-        fun partitionNumbers(numbers: Stack<Float>, size: Int): List<List<Float>> {
+        private fun partitionNumbers(numbers: Stack<Float>, size: Int): List<List<Float>> {
             assert((size * (size - 1)) / 2 == numbers.size)
             return (0..(size - 1)).map {
                 buildSequence {

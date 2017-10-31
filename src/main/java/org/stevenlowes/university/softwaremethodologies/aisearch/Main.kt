@@ -1,17 +1,14 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch
 
 import org.stevenlowes.university.softwaremethodologies.aisearch.input.TextParser
-import org.stevenlowes.university.softwaremethodologies.aisearch.solvers.Genetic
+import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Matrix
+import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.groupers.EnergeticGrouper
+import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.solvers.SimpleSolver
 
 fun main(args: Array<String>) {
-    println("Starting to load file")
-    val matrix = TextParser.parseFile("testFiles/10.txt")
-    println("Done loading file")
-    val genetic = Genetic(matrix = matrix,
-                          mutationRate = 10f,
-                          generationSurvivors = 30,
-                          generations = Integer.MAX_VALUE)
-    val best = genetic.run()
-    println("Finished!")
-    println("Min distance: ${best.distance}. Path: ${best.nodes}")
+    val rootLevel = TextParser.parseFile("testFiles/10.txt")
+    val matrix = Matrix(SimpleSolver(), EnergeticGrouper(2f, 5))
+    matrix.setRootLevel(rootLevel)
+    matrix.createAllLevels()
+    println("Done!")
 }
