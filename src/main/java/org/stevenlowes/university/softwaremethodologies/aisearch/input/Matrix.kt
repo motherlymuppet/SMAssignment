@@ -1,7 +1,7 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch.input
 
 class Matrix(val name: String) {
-    private val distances: MutableMap<UndirectionalPair<Int, Int>, Int> = mutableMapOf()
+    val distances: MutableMap<UndirectionalPair<Int, Int>, Int> = mutableMapOf()
 
     /**
      * Add a new city

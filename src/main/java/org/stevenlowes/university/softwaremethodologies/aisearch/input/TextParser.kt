@@ -27,7 +27,7 @@ class TextParser() {
             val partitionedNumbers = partitionNumbers(numbers, size).withIndex()
             partitionedNumbers.forEach {
                 val index = size - it.index
-                val distances = (index..size).zip(it.value).toMap()
+                val distances = ((index + 1)..(size + 1)).zip(it.value).toMap()
                 matrix.addCity(index, distances)
             }
             return matrix
