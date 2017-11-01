@@ -2,7 +2,6 @@ package org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.gro
 
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Level
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Node
-import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.UpperNode
 
 class EnergeticGrouper(val energy: Float, val minGroupSize: Int) : Grouper {
     override fun group(level: Level): Level {
