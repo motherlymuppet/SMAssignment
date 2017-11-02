@@ -1,14 +1,13 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.groupers
 
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Level
-import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.GroupNode
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.Node
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.SimpleGroupNode
 
 class EnergeticGrouper(val energy: Float, val minGroupSize: Int) : Grouper {
     override fun group(level: Level): Level {
         val nodes = level.nodes
-        val distAdjFactor = (1 / level.distances.values.flatMap { it.values }.average()).toFloat()
+        val distAdjFactor = (1 / level.array.average)
         val grouped: MutableSet<Node> = mutableSetOf()
         val ungrouped: MutableSet<Node> = nodes.toMutableSet()
         val groups: MutableSet<Set<Node>> = mutableSetOf()
@@ -22,7 +21,7 @@ class EnergeticGrouper(val energy: Float, val minGroupSize: Int) : Grouper {
         val parent = Level()
         val newNodes = groups.withIndex().map { SimpleGroupNode(it.index, parent, it.value) }
         val distances = distanceMatrix(newNodes, level)
-        parent.addNodes(distances)
+        parent.setNodes(distances)
 
         return parent
     }

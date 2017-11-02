@@ -29,7 +29,7 @@ class TextParser() {
             val matrix: MutableMap<Node, Map<Node, Float>> = mutableMapOf()
             val partitionedNumbers = partitionNumbers(numbers, size).withIndex()
             partitionedNumbers.forEach {
-                val index = size - it.index
+                val index = size - it.index - 1
                 val distances: Map<Node, Float> = ((index + 1)..(size + 1)).zip(it.value).toMap().mapKeys {
                     RootNode(it.key,
                              level)
@@ -37,7 +37,7 @@ class TextParser() {
                 val node = RootNode(index, level)
                 matrix.put(node, distances)
             }
-            level.addNodes(matrix.toMap())
+            level.setNodes(matrix.toMap())
         }
 
         private fun partitionNumbers(numbers: Stack<Float>, size: Int): List<List<Float>> {

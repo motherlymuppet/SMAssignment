@@ -19,7 +19,7 @@ class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val p
             var currentValue = evaluate(start, currentState, end)
 
             while (temp > endTemp) {
-                if (step % (10 * 1000) == 0) {
+                if (step % (1000 * 1000) == 0) {
                     println("Simulated Annealing Step $step of $steps current value $currentValue")
                 }
 

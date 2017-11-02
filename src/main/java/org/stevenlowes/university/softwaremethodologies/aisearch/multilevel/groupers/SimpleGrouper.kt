@@ -11,7 +11,7 @@ class SimpleGrouper(): Grouper{
 
         val distances : MutableMap<Node, Map<Node, Float>> = mutableMapOf()
         distances.put(node, emptyMap())
-        parent.addNodes(distances)
+        parent.setNodes(distances)
 
         return parent
     }
