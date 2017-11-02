@@ -32,6 +32,6 @@ abstract class Node(val id: Int, val level: Level, val childNodes: Collection<No
     }
 
     override fun toString(): String {
-        return "Node(id=$id)"
+        return "Node(id=$id level=${level.id})"
     }
 }

@@ -3,7 +3,7 @@ package org.stevenlowes.university.softwaremethodologies.aisearch.multilevel
 import org.stevenlowes.university.softwaremethodologies.aisearch.FastSquareArray
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.Node
 
-class Level {
+class Level(val id: Int) {
 
     lateinit var nodes: Set<Node> private set
     lateinit var array: FastSquareArray private set

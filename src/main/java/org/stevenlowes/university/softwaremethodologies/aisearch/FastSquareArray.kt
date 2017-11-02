@@ -18,7 +18,14 @@ class FastSquareArray(val size: Int, distances: Map<Node, Map<Node, Float>>){
     }
 
     fun get(x: Int, y: Int): Float{
-        return array[x*size + y]
+        try {
+            return array[x * size + y]
+        }
+        catch(ex: Exception){
+            ex.printStackTrace()
+            println("$x, $y")
+            throw RuntimeException()
+        }
     }
 
     val average get() = array.average().toFloat()

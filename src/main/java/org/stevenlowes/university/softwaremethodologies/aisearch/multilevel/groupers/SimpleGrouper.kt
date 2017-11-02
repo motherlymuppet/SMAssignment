@@ -6,7 +6,7 @@ import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.node
 
 class SimpleGrouper(): Grouper{
     override fun group(level: Level): Level {
-        val parent = Level()
+        val parent = Level(level.id + 1)
         val node: Node = SimpleGroupNode(0, parent, level.nodes)
 
         val distances : MutableMap<Node, Map<Node, Float>> = mutableMapOf()

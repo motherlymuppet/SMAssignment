@@ -20,7 +20,7 @@ class TextParser() {
             val cleanedNumberStrings = numberStrings.map { it.replace(Regex("[^0-9]"), "") }
             val numbers = Stack<Float>()
             numbers.addAll(cleanedNumberStrings.map { it.toFloat() })
-            val level = Level()
+            val level = Level(0)
             createMatrix(size, numbers, level)
             return level
         }

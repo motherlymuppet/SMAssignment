@@ -8,36 +8,40 @@ class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val p
     val random = Random()
 
     override fun bestPath(start: Node, inbetween: Collection<Node>, end: Node): List<Node> {
-        if (inbetween.size > 1) {
+        val currentState = inbetween.plus(start).plus(end).toMutableList()
+        if (currentState.size > 1) {
             val steps = Math.pow(inbetween.size.toDouble(), pow).toInt() * mult + const
             //val tempFactor = Math.pow(endTemp/startTemp, 1.0/steps)
-            val tempFactor = 0.9999999
+            val tempFactor = 0.9999
             var step = 0
             var temp = startTemp
 
-            var currentState = inbetween.toList()
-            var currentValue = evaluate(start, currentState, end)
+            var currentValue = evaluate(currentState)
 
             while (temp > endTemp) {
                 if (step % (1000 * 1000) == 0) {
                     println("Simulated Annealing Step $step of $steps current value $currentValue")
                 }
 
-                val newState = swap(currentState)
-                val newValue = evaluate(start, newState, end)
+                val swapIndices = getSwapIndices(currentState)
+                swap<Node>(currentState, swapIndices)
+                val newValue = evaluate(currentState)
 
                 if (doSwap(currentValue, newValue, temp)) {
-                    currentState = newState
                     currentValue = newValue
                 }
+                else{
+                    swap<Node>(currentState, swapIndices)
+                }
+
                 temp *= tempFactor
                 step++
             }
 
-            return listOf(start) + currentState + end
+            return currentState
         }
         else {
-            return listOf(start) + inbetween + end
+            return currentState.toList()
         }
     }
 
@@ -48,12 +52,11 @@ class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val p
         else random.nextDouble() < Math.exp(-(newValue - currentValue) / temperature)
     }
 
-    private fun evaluate(start: Node, inbetween: List<Node>, end: Node): Float {
-        return Path(listOf(start) + inbetween + end).distance
+    private fun evaluate(nodes: List<Node>): Float {
+        return Path(nodes).distance
     }
 
-    private fun <E> swap(list: List<E>): List<E> {
-        val mutableList = list.toMutableList()
+    private fun <E> getSwapIndices(list: MutableList<E>): Pair<Int, Int>{
         val index1 = random.nextInt(list.size)
         val index2Temp = random.nextInt(list.size - 1)
         val index2 = if (index2Temp >= index1) {
@@ -63,9 +66,13 @@ class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val p
             index2Temp
         }
 
-        mutableList[index1] = list[index2]
-        mutableList[index2] = list[index1]
+        return index1 to index2
+    }
 
-        return mutableList
+    private fun <E> swap(list: MutableList<Node>,
+                         indices: Pair<Int, Int>){
+        val storage = list[indices.first]
+        list[indices.first] = list[indices.second]
+        list[indices.second] = storage
     }
 }

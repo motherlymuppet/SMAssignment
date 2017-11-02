@@ -18,7 +18,7 @@ class EnergeticGrouper(val energy: Float, val minGroupSize: Int) : Grouper {
             grouped.addAll(group)
             ungrouped.removeAll(group)
         }
-        val parent = Level()
+        val parent = Level(level.id + 1)
         val newNodes = groups.withIndex().map { SimpleGroupNode(it.index, parent, it.value) }
         val distances = distanceMatrix(newNodes, level)
         parent.setNodes(distances)

@@ -23,7 +23,6 @@ interface Solver {
                 }
             }
         }
-
         return Path(currentPath)
     }
 
