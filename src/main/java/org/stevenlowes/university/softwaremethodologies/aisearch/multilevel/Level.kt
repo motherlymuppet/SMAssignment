@@ -13,19 +13,13 @@ class Level() {
     }
 
     fun distanceBetween(node1: Node, node2: Node): Float {
-        assert(node1 in nodes)
-        assert(node2 in nodes)
+        //assert(node1 in nodes)
+        //assert(node2 in nodes)
 
         val direction1 = directionalDistance(node1, node2)
         if (direction1 == null) {
-            try {
-                val direction2 = directionalDistance(node2, node1)!!
-                return direction2
-            }
-            catch (ex: Exception) {
-                println("here")
-                return 0f
-            }
+            val direction2 = directionalDistance(node2, node1)!!
+            return direction2
         }
         else {
             return direction1
