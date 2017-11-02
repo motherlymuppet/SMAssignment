@@ -12,8 +12,7 @@ class EnergeticGrouper(val energy: Float, val minGroupSize: Int) : Grouper {
         val ungrouped: MutableSet<Node> = nodes.toMutableSet()
         val groups: MutableSet<Set<Node>> = mutableSetOf()
         while (ungrouped.isNotEmpty()) {
-            val startNode = firstNode(grouped, ungrouped, level)
-            val group = groupOnce(ungrouped, startNode, level, distAdjFactor)
+            val group = groupOnce(ungrouped, level, distAdjFactor)
             groups.add(group)
             grouped.addAll(group)
             ungrouped.removeAll(group)
@@ -58,11 +57,11 @@ class EnergeticGrouper(val energy: Float, val minGroupSize: Int) : Grouper {
         return (1 / inverseResistance).toFloat();
     }
 
-    private fun groupOnce(nodes: Collection<Node>, startNode: Node, level: Level, distAdjFactor: Float): Set<Node> {
+    private fun groupOnce(nodes: Collection<Node>, level: Level, distAdjFactor: Float): Set<Node> {
         println("Starting to group. ${nodes.size} nodes left")
         val selected = mutableSetOf<TempNode>()
         val notSelected = nodes.map { TempNode(it) }.toMutableSet()
-        val startTempNode = notSelected.first { it.underlying == startNode }
+        val startTempNode = notSelected.first()
         var remainingEnergy = energy
         var first = true
 

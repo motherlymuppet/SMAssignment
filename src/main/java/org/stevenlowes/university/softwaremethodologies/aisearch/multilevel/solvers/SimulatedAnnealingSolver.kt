@@ -11,15 +11,15 @@ class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val p
         val currentState = inbetween.plus(start).plus(end).toMutableList()
         if (currentState.size > 1) {
             val steps = Math.pow(inbetween.size.toDouble(), pow).toInt() * mult + const
-            //val tempFactor = Math.pow(endTemp/startTemp, 1.0/steps)
-            val tempFactor = 0.9999
+            val tempFactor = Math.pow(endTemp/startTemp, 1.0/steps)
+            //val tempFactor = 0.9999
             var step = 0
             var temp = startTemp
 
             var currentValue = evaluate(currentState)
 
             while (temp > endTemp) {
-                if (step % (1000 * 1000) == 0) {
+                if (step % (1000) == 0) {
                     println("Simulated Annealing Step $step of $steps current value $currentValue")
                 }
 

@@ -28,5 +28,15 @@ class FastSquareArray(val size: Int, distances: Map<Node, Map<Node, Float>>){
         }
     }
 
+    fun averageDistanceTo(id: Int): Float {
+        val startIndex = id * size
+        val endIndex = (id + 1) * size - 1
+        var sum: Float = 0f
+        for(i in startIndex..endIndex){
+            sum += array[i]
+        }
+        return sum
+    }
+
     val average get() = array.average().toFloat()
 }
