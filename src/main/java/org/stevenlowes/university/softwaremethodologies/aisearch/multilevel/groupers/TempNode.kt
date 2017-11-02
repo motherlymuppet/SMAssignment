@@ -1,7 +1,7 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.groupers
 
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Level
-import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Node
+import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.Node
 
 class TempNode(val underlying: Node) {
     var inverseResistance: Float = 0f

@@ -1,9 +1,16 @@
-package org.stevenlowes.university.softwaremethodologies.aisearch.multilevel
+package org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes
 
-open class Node(val id: Int, val level: Level, val childNodes: Collection<Node>) {
-    fun distanceTo(other: Node) {
+import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Level
+
+abstract class Node(val id: Int, val level: Level, val childNodes: Collection<Node>) {
+
+    abstract val entryNode: Node
+
+    abstract val exitNode: Node
+
+    fun distanceTo(other: Node): Float {
         assert(level == other.level)
-        level.distanceBetween(this, other)
+        return level.distanceBetween(this, other)
     }
 
     override fun equals(other: Any?): Boolean {

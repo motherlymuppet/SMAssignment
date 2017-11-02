@@ -1,7 +1,9 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.groupers
 
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Level
-import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Node
+import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.GroupNode
+import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.Node
+import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.SimpleGroupNode
 
 class EnergeticGrouper(val energy: Float, val minGroupSize: Int) : Grouper {
     override fun group(level: Level): Level {
@@ -18,24 +20,24 @@ class EnergeticGrouper(val energy: Float, val minGroupSize: Int) : Grouper {
             ungrouped.removeAll(group)
         }
         val parent = Level()
-        val newNodes = groups.withIndex().map { UpperNode(it.index, parent, it.value) }
+        val newNodes = groups.withIndex().map { SimpleGroupNode(it.index, parent, it.value) }
         val distances = distanceMatrix(newNodes, level)
         parent.addNodes(distances)
 
         return parent
     }
 
-    private fun distanceMatrix(nodes: Collection<UpperNode>, level: Level): Map<Node, Map<Node, Float>> {
+    private fun distanceMatrix(nodes: Collection<Node>, level: Level): Map<Node, Map<Node, Float>> {
         val matrix = nodes.map { n1 ->
-            n1 as Node to nodes.map { n2 ->
+            n1 to nodes.mapNotNull { n2 ->
                 //For each pair of nodes return
                 if (n1 == n2) {
                     null
                 }
                 else {
-                    n2 as Node to distanceBetween(n1, n2, level)
+                    n2 to distanceBetween(n1, n2, level)
                 }
-            }.filterNotNull().toMap()
+            }.toMap()
         }.toMap()
 
         val adjustment = 1 / (matrix.values.flatMap { it.values }.average())
@@ -45,7 +47,7 @@ class EnergeticGrouper(val energy: Float, val minGroupSize: Int) : Grouper {
         return adjusted
     }
 
-    private fun distanceBetween(n1: UpperNode, n2: UpperNode, level: Level): Float {
+    private fun distanceBetween(n1: Node, n2: Node, level: Level): Float {
         var inverseResistance: Double = 0.0
 
         n1.childNodes.forEach { n1Child ->

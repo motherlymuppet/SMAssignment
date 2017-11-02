@@ -1,7 +1,8 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch.input
 
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Level
-import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Node
+import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.Node
+import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.RootNode
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.util.*

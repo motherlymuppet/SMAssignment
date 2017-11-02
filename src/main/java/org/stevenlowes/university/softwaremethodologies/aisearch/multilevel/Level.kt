@@ -1,5 +1,7 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch.multilevel
 
+import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.Node
+
 class Level() {
 
     val nodes: MutableSet<Node> = mutableSetOf()

@@ -9,6 +9,12 @@ fun main(args: Array<String>) {
     val rootLevel = TextParser.parseFile("testFiles/10.txt")
     val matrix = Matrix(SimpleSolver(), EnergeticGrouper(2f, 5))
     matrix.setRootLevel(rootLevel)
+    val startTime = System.nanoTime()
     matrix.createAllLevels()
+    val path = matrix.solve()
+    val endTime = System.nanoTime()
+    println(path)
     println("Done!")
+    val dif = (endTime - startTime).toDouble() / 1000 / 1000 / 1000
+    println(dif)
 }
