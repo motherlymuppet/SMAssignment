@@ -1,10 +1,9 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.solvers
 
-import org.stevenlowes.university.softwaremethodologies.aisearch.input.Path
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.Node
 
-class SimpleSolver : Solver {
+class AntColonySolver(): Solver{
     override fun bestPath(nodes: Collection<Node>): List<Node> {
-        return nodes.toList()
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

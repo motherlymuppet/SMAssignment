@@ -9,11 +9,11 @@ import java.util.concurrent.Executors
 class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val pow: Double, val mult: Int, val const: Int) : Solver {
     private val random = Random()
 
-    override fun bestPath(start: Node, inbetween: Collection<Node>, end: Node): List<Node> {
-        val startState = inbetween.plus(start).plus(end)
+    override fun bestPath(nodes: Collection<Node>): List<Node> {
+        val startState = nodes.toList()
         println("Solving with ${startState.size} nodes")
         if (startState.size > 1) {
-            val steps = Math.pow(inbetween.size.toDouble(), pow).toLong() * mult + const
+            val steps = Math.pow(startState.size.toDouble(), pow).toLong() * mult + const
 
             if(steps > 20 * 1000 * 1000){
                 //Multithreading

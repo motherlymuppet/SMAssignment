@@ -31,12 +31,9 @@ interface Solver {
             return emptyList()
         }
         else{
-            val children = node.childNodes.toMutableList()
-            children.remove(node.entryNode)
-            children.remove(node.exitNode)
-            return bestPath(node.entryNode, children, node.exitNode)
+            return bestPath(node.childNodes)
         }
     }
 
-    fun bestPath(start: Node, inbetween: Collection<Node>, end: Node): List<Node>
+    fun bestPath(nodes: Collection<Node>): List<Node>
 }
