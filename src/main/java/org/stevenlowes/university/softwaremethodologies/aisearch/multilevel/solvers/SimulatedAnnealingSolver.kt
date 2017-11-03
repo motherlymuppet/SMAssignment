@@ -5,26 +5,44 @@ import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.node
 import java.util.*
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
-import java.util.concurrent.ThreadPoolExecutor
 
 class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val pow: Double, val mult: Int, val const: Int) : Solver {
     private val random = Random()
 
     override fun bestPath(start: Node, inbetween: Collection<Node>, end: Node): List<Node> {
-        val startState = inbetween.plus(start).plus(end).toMutableList()
+        val startState = inbetween.plus(start).plus(end)
+        println("Solving with ${startState.size} nodes")
         if (startState.size > 1) {
-            val steps = Math.pow(inbetween.size.toDouble(), pow).toInt() * mult + const
+            val steps = Math.pow(inbetween.size.toDouble(), pow).toLong() * mult + const
 
             if(steps > 20 * 1000 * 1000){
                 //Multithreading
                 val cpus = Runtime.getRuntime().availableProcessors()
                 val newSteps = steps/cpus
+                println("$steps Steps, $newSteps per cpu")
 
                 val executor = Executors.newFixedThreadPool(cpus)
-                val futures = (1..cpus).map { executor.submit(SolverCallable(this, newSteps, startState)) }
-                val answers = futures.map { it.get() }
-                val best = answers.minBy { Path(it).distance }!!
-                return best
+
+                var currentState = startState
+                var temp = startTemp
+                val tempFactor = Math.pow(endTemp/startTemp, 1.0/newSteps)
+                val config = Config(this, temp, tempFactor, startState)
+                val callables = (1..cpus).map { SolverCallable(config) }
+                var stage = 1
+                while(temp > endTemp){
+                    println("Stage $stage. Current Temp $temp. End temp $endTemp")
+                    println("Best solution: ${Path(currentState).distance}")
+                    stage++
+                    val futures = callables.map { executor.submit(it) }
+                    val answers = futures.map { it.get() }
+                    val best = answers.minBy { Path(it).distance }!!
+                    temp *= Math.pow(tempFactor, (1000 * 1000).toDouble())
+                    currentState = best
+                    config.temp = temp
+                    config.nodes = currentState
+                }
+
+                return currentState
             }
             else{
                 return singleThreadedRun(steps, startState)
@@ -35,7 +53,28 @@ class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val p
         }
     }
 
-    private fun singleThreadedRun(steps: Int, nodes: List<Node>): List<Node>{
+    private fun singleThreadedMillionSteps(currentTemp: Double, tempFactor: Double, nodes: List<Node>): List<Node>{
+        val currentState = nodes.toMutableList()
+        var temp = currentTemp
+
+        var currentValue = evaluate(currentState)
+
+        for(i in 1..(1000*1000)){
+            val swapIndices = getSwapIndices(currentState)
+            val valueDelta = evaluateSwap(currentState, swapIndices)
+
+            if (doSwap(currentValue, valueDelta, temp)) {
+                swap(currentState, swapIndices)
+                currentValue += valueDelta
+            }
+
+            temp *= tempFactor
+        }
+
+        return currentState
+    }
+
+    private fun singleThreadedRun(steps: Long, nodes: List<Node>): List<Node>{
         val currentState = nodes.toMutableList()
         val tempFactor = Math.pow(endTemp/startTemp, 1.0/steps)
         var step = 0
@@ -148,9 +187,11 @@ class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val p
         list[indices.second] = storage
     }
 
-    private class SolverCallable(val solver: SimulatedAnnealingSolver, val steps: Int, val state: List<Node>): Callable<List<Node>>{
+    private class SolverCallable(val config: Config): Callable<List<Node>>{
         override fun call(): List<Node> {
-            return solver.singleThreadedRun(steps, state)
+            return config.solver.singleThreadedMillionSteps(config.temp, config.tempFactor, config.nodes)
         }
     }
+
+    private data class Config(val solver: SimulatedAnnealingSolver,  var temp:Double, val tempFactor: Double, var nodes: List<Node>)
 }
