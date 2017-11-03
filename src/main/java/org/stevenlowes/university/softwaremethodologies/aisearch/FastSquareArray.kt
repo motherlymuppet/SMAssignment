@@ -1,41 +1,38 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch
 
-import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.Node
+open class FastSquareArray(val size: Int, val initialiser: (Int, Int) -> Float){
+    val array: FloatArray = FloatArray(size * size, init = {initialiser(it%size, it/size)})
 
-class FastSquareArray(val size: Int, distances: Map<Node, Map<Node, Float>>){
-    val array: Array<Float> = Array(size * size, {0f})
+    fun get(x: Int, y: Int): Float{
+        return array[x * size + y]
+    }
 
-    init {
-        val values = distances.map { it.key.id to it.value.map { it.key.id to it.value }.toMap() }.toMap()
-        values.forEach { x, map ->
-            map.forEach { y, dist ->
-                val index = x * size + y
-                val index2 = y * size + x
-                array[index] = dist
-                array[index2] = dist
+    fun set(x: Int, y: Int, value: Float){
+        array[x*size + y] = value
+        array[y*size + x] = value
+    }
+
+    fun averageDistanceTo(id: Int): Float {
+        return getRow(id).average().toFloat()
+    }
+
+    fun transform(transformation: (Int, Int, Float) -> Float){
+        for(x in 0..(size-1)){
+            for(y in 0..(size-1)){
+                set(x, y, transformation(x, y, get(x, y)))
             }
         }
     }
 
-    fun get(x: Int, y: Int): Float{
-        try {
-            return array[x * size + y]
-        }
-        catch(ex: Exception){
-            ex.printStackTrace()
-            println("$x, $y")
-            throw RuntimeException()
-        }
+    fun add(x: Int, y: Int, increase: Float){
+        array[x * size + y]+=increase
+        array[y * size + x]+=increase
     }
 
-    fun averageDistanceTo(id: Int): Float {
-        val startIndex = id * size
-        val endIndex = (id + 1) * size - 1
-        var sum: Float = 0f
-        for(i in startIndex..endIndex){
-            sum += array[i]
-        }
-        return sum
+    fun getRow(x: Int): FloatArray{
+        val startIndex = x * size
+        val endIndex = (x + 1) * size
+        return array.copyOfRange(startIndex, endIndex)
     }
 
     val average get() = array.average().toFloat()
