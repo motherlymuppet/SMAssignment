@@ -3,42 +3,64 @@ package org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.sol
 import org.stevenlowes.university.softwaremethodologies.aisearch.input.Path
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.Node
 import java.util.*
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
+import java.util.concurrent.ThreadPoolExecutor
 
 class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val pow: Double, val mult: Int, val const: Int) : Solver {
     private val random = Random()
 
     override fun bestPath(start: Node, inbetween: Collection<Node>, end: Node): List<Node> {
-        val currentState = inbetween.plus(start).plus(end).toMutableList()
-        if (currentState.size > 1) {
+        val startState = inbetween.plus(start).plus(end).toMutableList()
+        if (startState.size > 1) {
             val steps = Math.pow(inbetween.size.toDouble(), pow).toInt() * mult + const
-            val tempFactor = Math.pow(endTemp/startTemp, 1.0/steps)
-            var step = 0
-            var temp = startTemp
 
-            var currentValue = evaluate(currentState)
+            if(steps > 20 * 1000 * 1000){
+                //Multithreading
+                val cpus = Runtime.getRuntime().availableProcessors()
+                val newSteps = steps/cpus
 
-            while (temp > endTemp) {
-                if (step % (1000 * 1000) == 0) {
-                    println("Simulated Annealing Step $step of $steps current value $currentValue")
-                }
-
-                val swapIndices = getSwapIndices(currentState)
-                val valueDelta = evaluateSwap(currentState, swapIndices)
-
-                if (doSwap(currentValue, valueDelta, temp)) {
-                    swap(currentState, swapIndices)
-                    currentValue += valueDelta
-                }
-
-                temp *= tempFactor
-                step++
+                val executor = Executors.newFixedThreadPool(cpus)
+                val futures = (1..cpus).map { executor.submit(SolverCallable(this, newSteps, startState)) }
+                val answers = futures.map { it.get() }
+                val best = answers.minBy { Path(it).distance }!!
+                return best
             }
-
-            return currentState
+            else{
+                return singleThreadedRun(steps, startState)
+            }
         }
         else {
-            return currentState.toList()
+            return startState.toList()
         }
+    }
+
+    private fun singleThreadedRun(steps: Int, nodes: List<Node>): List<Node>{
+        val currentState = nodes.toMutableList()
+        val tempFactor = Math.pow(endTemp/startTemp, 1.0/steps)
+        var step = 0
+        var temp = startTemp
+
+        var currentValue = evaluate(currentState)
+
+        while (temp > endTemp) {
+            if (step % (1000 * 1000) == 0) {
+                println("Simulated Annealing Step $step of $steps current value $currentValue")
+            }
+
+            val swapIndices = getSwapIndices(currentState)
+            val valueDelta = evaluateSwap(currentState, swapIndices)
+
+            if (doSwap(currentValue, valueDelta, temp)) {
+                swap(currentState, swapIndices)
+                currentValue += valueDelta
+            }
+
+            temp *= tempFactor
+            step++
+        }
+
+        return currentState
     }
 
     private fun evaluate(currentState: MutableList<Node>): Float {
@@ -124,5 +146,11 @@ class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val p
         val storage = list[indices.first]
         list[indices.first] = list[indices.second]
         list[indices.second] = storage
+    }
+
+    private class SolverCallable(val solver: SimulatedAnnealingSolver, val steps: Int, val state: List<Node>): Callable<List<Node>>{
+        override fun call(): List<Node> {
+            return solver.singleThreadedRun(steps, state)
+        }
     }
 }

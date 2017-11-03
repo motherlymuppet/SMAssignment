@@ -8,9 +8,9 @@ import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.solv
 
 fun main(args: Array<String>) {
     val rootLevel = TextParser.parseFile("testfiles/10.txt")
-    val solver = SimulatedAnnealingSolver(75.0, 2.0, 2.0, 25000, 1000)
-    //val grouper = SimpleGrouper()
-    val grouper = EnergeticGrouper(3f, 15)
+    val solver = SimulatedAnnealingSolver(75.0, 2.0, 2.0, 100 , 1000)
+    val grouper = SimpleGrouper()
+    //val grouper = EnergeticGrouper(3f, 15)
     val matrix = Matrix(solver, grouper)
     matrix.setRootLevel(rootLevel)
     val startTime = System.nanoTime()
