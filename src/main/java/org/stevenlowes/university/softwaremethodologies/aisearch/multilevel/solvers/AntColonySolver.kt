@@ -19,7 +19,8 @@ class AntColonySolver(val antCount: Int,
             println("Iterating!")
             val desirability = DesirabilityArray(distances, pheremones, distanceInfluence, pheremonesInfluence)
             val ants = generateAnts(antCount, desirability, distances)
-            updatePheremones(ants, pheremones, pheremoneEvaporation, pheremoneDepositing)
+            val depositingAnts = if (bestAnt == null) ants else ants.plus(bestAnt)
+            updatePheremones(depositingAnts, pheremones, pheremoneEvaporation, pheremoneDepositing)
 
             val newBestAnt = ants.minBy { it.distance }
             if (newBestAnt != null) {
@@ -65,20 +66,21 @@ private class Ant(startNode: Int, desirability: DesirabilityArray, distances: Di
     val distance: Float
 
     init {
-        val chosen = mutableListOf<Int>()
-        val size = desirability.size
-        path = IntArray(size)
+        val options = (0..(distances.size - 1)).toMutableList()
+        path = IntArray(distances.size)
 
         var previous = startNode
         path[0] = startNode
-        chosen.add(startNode)
-        var chosenCount = 1
+        options.remove(startNode)
 
-        while (chosenCount < size) {
-            val newNode = desirability.moveFrom(previous, chosen)
-            chosen.add(newNode)
-            path[chosenCount] = newNode
-            chosenCount++
+        var currentIndex = 1
+        while (options.isNotEmpty()) {
+            val newNode = desirability.moveFrom(previous, options)
+
+            options.remove(newNode)
+
+            path[currentIndex] = newNode
+            currentIndex++
             previous = newNode
         }
 
@@ -144,12 +146,14 @@ private class DesirabilityArray(val distances: DistanceArray,
     /**
      * Returns the node that the ant should move to
      */
-    fun moveFrom(x: Int, chosen: MutableList<Int>): Int {
-        val max = (0..(size - 1)).filterNot { it in chosen }.map { y -> get(x, y) }.sum()
+    fun moveFrom(x: Int, options: List<Int>): Int {
+        val random = rand.nextFloat() * getMax(x, options)
+        return weightedRandom(x, options, random)
+    }
 
-        val random = rand.nextFloat() * max
+    fun weightedRandom(x: Int, options: List<Int>, random: Float): Int {
         var runningTotal = 0f
-        (0..(size - 1)).filterNot { it in chosen }.forEach { y ->
+        for (y in options) {
             val value = get(x, y)
             runningTotal += value
             if (runningTotal >= random) {
@@ -157,5 +161,9 @@ private class DesirabilityArray(val distances: DistanceArray,
             }
         }
         throw RuntimeException("This should never happen")
+    }
+
+    fun getMax(x: Int, options: List<Int>): Float {
+        return options.map { get(x, it) }.sum()
     }
 }
