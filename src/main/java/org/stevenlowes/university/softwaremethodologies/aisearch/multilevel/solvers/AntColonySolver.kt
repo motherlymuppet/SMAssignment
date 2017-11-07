@@ -41,7 +41,6 @@ class AntColonySolver(val antCount: Int,
     }
 
     companion object {
-        val rand = Random()
         val executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
     }
 
