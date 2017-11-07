@@ -14,20 +14,24 @@ class AntColonySolver(val antCount: Int,
         val distances = nodes.first().level.array
         val pheremones = Pheremones(distances, 0.2f)
 
+        var energy = 10
+
         var bestAnt: Ant? = null
-        while (!terminate()) {
-            println("Iterating!")
+        while (energy > 0) {
+            println("Iterating! $energy")
             val desirability = DesirabilityArray(distances, pheremones, distanceInfluence, pheremonesInfluence)
             val ants = generateAnts(antCount, desirability, distances)
             val depositingAnts = if (bestAnt == null) ants else ants.plus(bestAnt)
             updatePheremones(depositingAnts, pheremones, pheremoneEvaporation, pheremoneDepositing)
 
-            val newBestAnt = ants.minBy { it.distance }
-            if (newBestAnt != null) {
-                if (bestAnt == null || newBestAnt.distance < bestAnt.distance) {
-                    bestAnt = newBestAnt
-                    println(bestAnt)
-                }
+            val newBestAnt = ants.minBy { it.distance }!!
+
+            energy -= 1
+
+            if (bestAnt == null || newBestAnt.distance < bestAnt.distance) {
+                energy = 10
+                bestAnt = newBestAnt
+                println("Best Ant: ${bestAnt.distance}")
             }
         }
 
@@ -44,13 +48,6 @@ class AntColonySolver(val antCount: Int,
                                  pheremoneDepositing: Float) {
         pheremones.evaporate(pheremoneEvaporation)
         pheremones.depositAll(ants, pheremoneDepositing)
-    }
-
-    private var count = 0;
-
-    private fun terminate(): Boolean {
-        count++
-        return count > 10000
     }
 
     private fun generateAnts(count: Int, desirability: DesirabilityArray, distances: DistanceArray): List<Ant> {
