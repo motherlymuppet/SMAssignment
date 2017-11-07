@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 import kotlin.coroutines.experimental.buildSequence
 
-class TextParser() {
+class TextParser {
     companion object {
         fun parseFile(filename: String): Level {
             val file = File(filename)
