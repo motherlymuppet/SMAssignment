@@ -138,30 +138,22 @@ class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val p
 
             val index1 = currentState[swapIndices.first]
             val index2 = currentState[swapIndices.second]
-            val index1Minus = currentState.getOrNull(swapIndices.first - 1)
-            val index1Plus = currentState.getOrNull(swapIndices.first + 1)
-            val index2Minus = currentState.getOrNull(swapIndices.second - 1)
-            val index2Plus = currentState.getOrNull(swapIndices.second + 1)
+            val index1Minus = currentState.getOrNull(swapIndices.first - 1) ?: currentState.last()
+            val index1Plus = currentState.getOrNull(swapIndices.first + 1) ?: currentState.first()
+            val index2Minus = currentState.getOrNull(swapIndices.second - 1) ?: currentState.last()
+            val index2Plus = currentState.getOrNull(swapIndices.second + 1) ?: currentState.first()
 
-            if (index1Minus != null) {
-                delta -= index1Minus.distanceTo(index1)
-                delta += index1Minus.distanceTo(index2)
-            }
+            delta -= index1Minus.distanceTo(index1)
+            delta += index1Minus.distanceTo(index2)
 
-            if (index1Plus != null) {
-                delta -= index1.distanceTo(index1Plus)
-                delta += index2.distanceTo(index1Plus)
-            }
+            delta -= index1.distanceTo(index1Plus)
+            delta += index2.distanceTo(index1Plus)
 
-            if (index2Minus != null) {
-                delta -= index2Minus.distanceTo(index2)
-                delta += index2Minus.distanceTo(index1)
-            }
+            delta -= index2Minus.distanceTo(index2)
+            delta += index2Minus.distanceTo(index1)
 
-            if (index2Plus != null) {
-                delta -= index2.distanceTo(index2Plus)
-                delta += index1.distanceTo(index2Plus)
-            }
+            delta -= index2.distanceTo(index2Plus)
+            delta += index1.distanceTo(index2Plus)
 
             return delta
         }
