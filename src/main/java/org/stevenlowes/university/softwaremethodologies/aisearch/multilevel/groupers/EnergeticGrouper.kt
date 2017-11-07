@@ -97,14 +97,4 @@ class EnergeticGrouper(val energy: Float, val minGroupSize: Int) : Grouper {
         val adjusted = orig * adjustmentFactor
         return adjusted
     }
-
-    private fun firstNode(alreadyGrouped: Set<Node>,
-                          notYetGrouped: Set<Node>,
-                          level: Level): Node {
-        if (alreadyGrouped.isEmpty()) {
-            return notYetGrouped.first()
-        }
-
-        return notYetGrouped.maxBy { TempNode(it).connectivity(level) }!!
-    }
 }
