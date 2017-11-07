@@ -4,6 +4,8 @@ import org.stevenlowes.university.softwaremethodologies.aisearch.DistanceArray
 import org.stevenlowes.university.softwaremethodologies.aisearch.FastSquareArray
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.Node
 import java.util.*
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
 
 class AntColonySolver(val antCount: Int,
                       val distanceInfluence: Double,
@@ -40,6 +42,7 @@ class AntColonySolver(val antCount: Int,
 
     companion object {
         val rand = Random()
+        val executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
     }
 
     private fun updatePheremones(ants: List<Ant>,
@@ -51,10 +54,30 @@ class AntColonySolver(val antCount: Int,
     }
 
     private fun generateAnts(count: Int, desirability: DesirabilityArray, distances: DistanceArray): List<Ant> {
-        return (1..count).map {
-            val startNode = rand.nextInt(distances.size)
-            return@map Ant(startNode, desirability, distances)
+        if (count * desirability.size * desirability.size > 100 * 1000 * 1000) {
+            val cpus = Runtime.getRuntime().availableProcessors()
+            val countPer = count / cpus
+            val futures = (1..cpus).map { executor.submit(AntGenerator(countPer, desirability, distances)) }
+            val ants = futures.flatMap { it.get() }
+            return ants
         }
+        else {
+            //Single threaded
+            return AntGenerator(count, desirability, distances).call()
+        }
+    }
+}
+
+private class AntGenerator(val ants: Int,
+                           val desirability: DesirabilityArray,
+                           val distances: DistanceArray) : Callable<List<Ant>> {
+    companion object {
+        val rand = Random()
+    }
+
+    override fun call(): List<Ant> {
+        val size = desirability.size
+        return (1..ants).map { Ant(rand.nextInt(size), desirability, distances) }
     }
 }
 
