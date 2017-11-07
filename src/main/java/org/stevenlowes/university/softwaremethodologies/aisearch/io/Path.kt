@@ -5,18 +5,5 @@ import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.node
 data class Path(val nodes: List<Node>) {
     val distance: Float by lazy { calcDistance() }
 
-    private fun calcDistance(): Float{
-        var prevNode: Node? = null
-        var distance: Float = 0f
-
-        for(node in nodes){
-            if(prevNode != null){
-                val dist = prevNode.distanceTo(node)
-                distance += dist
-            }
-            prevNode = node
-        }
-
-        return distance
-    }
+    private fun calcDistance(): Float = nodes.first().level.array.getDistance(nodes.map { it.id }.toIntArray())
 }

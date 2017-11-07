@@ -22,6 +22,8 @@ class DistanceArray(distances: Map<Int, Map<Int, Float>>) : FastSquareArray(dist
             }
             prevId = id
         }
+
+        total += get(array.last(), array.first())
         return total
     }
 }
