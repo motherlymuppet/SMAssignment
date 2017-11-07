@@ -55,6 +55,7 @@ class AntColonySolver(val antCount: Int,
     private fun generateAnts(count: Int, desirability: DesirabilityArray, distances: DistanceArray): List<Ant> {
         if (count * desirability.size * desirability.size > 100 * 1000 * 1000) {
             val cpus = Runtime.getRuntime().availableProcessors()
+            println("Generating ants using $cpus threads")
             val countPer = count / cpus
             val futures = (1..cpus).map { executor.submit(AntGenerator(countPer, desirability, distances)) }
             val ants = futures.flatMap { it.get() }
@@ -62,6 +63,7 @@ class AntColonySolver(val antCount: Int,
         }
         else {
             //Single threaded
+            println("Generating ants using single-thread")
             return AntGenerator(count, desirability, distances).call()
         }
     }
@@ -161,6 +163,8 @@ private class DesirabilityArray(val distances: DistanceArray,
     companion object {
         val rand = Random()
     }
+
+    //TODO handle 0 properly
 
     /**
      * Returns the node that the ant should move to
