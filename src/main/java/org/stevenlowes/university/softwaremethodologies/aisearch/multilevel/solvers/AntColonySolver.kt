@@ -5,126 +5,110 @@ import org.stevenlowes.university.softwaremethodologies.aisearch.NodeArray
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.Node
 import java.util.*
 
-class AntColonySolver(val ants: Int, val evaporationRate: Float, val expectedMaxDistance: Float) : Solver {
+class AntColonySolver() : Solver {
     override fun bestPath(nodes: Collection<Node>): List<Node> {
-        val distances = nodes.first().level.array
+        while (!terminate()) {
+            val ants = generateAnts()
+            updatePheremones(ants)
+        }
+    }
+
+    private fun updatePheremones(ants: List<Ant>) {
+        TODO()
+    }
+
+    private fun terminate(): Boolean {
+        TODO()
+    }
+
+    private fun generateAnts(): List<Ant> {
+        TODO()
+    }
+}
+
+private class Ant(val startNode: Int, val desirability: DesirabilityArray) {
+    val path: IntArray
+
+    init {
+        val chosen = mutableListOf<Int>()
         val size = distances.size
-        val pheremones = PheremonesArray(size, 100f)
-        //var bestAnt: Ant
-        while (true) {
-            println("${pheremones.array.count { it == 0f }} avg: ${pheremones.average}")
-            val ants: Collection<Ant> = simulateAnts(ants, pheremones, distances)
-            dropPheremones(ants, pheremones, expectedMaxDistance)
-            pheremones.evaporate(1-evaporationRate)
-            //bestAnt =
-            pheremones.depositAll(-0.1f)
+        var chosenCount = 0
+        path = IntArray(size)
 
-            if (terminate(ants)) {
-                val nodesById = nodes.map { it.id to it }.toMap()
-                val bestPath = ants.minBy { it.distance }!!.path.map { nodesById[it]!! }
-                return bestPath
-            }
+        while (chosenCount < size) {
+
+            chosenCount++
         }
     }
+}
+
+private class PheremonesArray(size: Int, initial: Float) : FastSquareArray(size, { _, _ -> initial }) {
+    companion object {
+        val rand = Random()
+    }
+
+    fun evaporate(evaporationRate: Float) {
+        transform { _, _, current ->
+            current * evaporationRate
+        }
+    }
+
+    fun depositAll(increase: Float) {
+        transform { _, _, current ->
+            Math.max(0f, current + increase)
+        }
+    }
+
+    fun deposit(ant: Ant, expectedMaxDistance: Float) {
+        val path = ant.path
+        val distance = ant.distance
+
+        var previous: Int? = null
+        for (node in path) {
+            if (previous != null) {
+                add(previous, node, distance / expectedMaxDistance)
+            }
+            previous = node
+        }
+    }
+}
+
+private class DesirabilityArray(val distances: NodeArray,
+                                val pheremones: PheremonesArray,
+                                distanceInfluence: Double,
+                                pheremonesInfluence: Double)
+    : FastSquareArray(distances.size,
+                      { x, y ->
+                          (
+                                  Math.pow(
+                                          pheremones.get(x, y).toDouble(),
+                                          pheremonesInfluence) *
+                                          Math.pow(
+                                                  1 / distances.get(x, y).toDouble(),
+                                                  distanceInfluence)
+                                  ).toFloat()
+                      }
+                     ) {
+    companion object {
+        val rand = Random()
+    }
+
+    val runningTotals = FastSquareArray(size, { x, y ->
+        (0..y).map { get(x, it) }.sum()
+    })
 
     /**
-     * Ants drop pheremones on the path they travelled
+     * Returns the node that the ant should move to
      */
-    private fun dropPheremones(ants: Collection<Ant>, pheremones: PheremonesArray, expectedMaxDistance: Float) {
-        ants.forEach { pheremones.deposit(it, expectedMaxDistance) }
-    }
-
-    /**
-     * Simulate all ants,
-     */
-    private fun simulateAnts(ants: Int, pheremones: PheremonesArray, distances: NodeArray): Collection<Ant> {
-        return (1..ants).map { Ant(pheremones, distances) }
-    }
-
-    /**
-     * Return true if the solver should terminate
-     */
-    private fun terminate(ants: Collection<Ant>): Boolean{
-        val first = ants.first().path
-        return ants.all { Arrays.equals(it.path, first) }
-    }
-
-    private class Ant(pheremones: PheremonesArray, distances: NodeArray) {
-        companion object {
-            val rand = Random()
-        }
-
-        val path: IntArray
-        val distance: Float
-
-        init {
-            val size = distances.size
-            val array = IntArray(size, {-1})
-            val first = rand.nextInt(size)
-            array[0] = first
-            for(i in 0..(size - 2)){
-                val next = pheremones.moveFrom(array[i], array)
-                array[i+1] = next
-            }
-
-            path = array
-            distance = distances.getDistance(array)
-        }
-    }
-
-    private class PheremonesArray(size: Int, initial: Float) : FastSquareArray(size, { _, _ -> initial }) {
-        companion object {
-            val rand = Random()
-        }
-
-        fun evaporate(evaporationRate: Float) {
-            transform { _, _, current ->
-                current * evaporationRate
+    fun moveFrom(x: Int): Int {
+        val max = get(x, size - 1)
+        val random = rand.nextFloat() * max
+        (0..(size - 1)).forEach { y ->
+            val runningTotalValue = runningTotals.get(x, y)
+            if (runningTotalValue >= random) {
+                return y
             }
         }
-
-        fun depositAll(increase: Float) {
-            transform { _, _, current ->
-                Math.max(0f, current + increase)
-            }
-        }
-
-        fun deposit(ant: Ant, expectedMaxDistance: Float) {
-            val path = ant.path
-            val distance = ant.distance
-
-            var previous: Int? = null
-            for (node in path) {
-                if (previous != null) {
-                    add(previous, node, distance/expectedMaxDistance)
-                }
-                previous = node
-            }
-        }
-
-        fun moveFrom(node: Int, visited: IntArray): Int{
-            val options: FloatArray = getRow(node)
-            val sum = (0..(options.size-1))
-                    .filter { it !in visited }
-                    .map { options[it] }
-                    .sum()
-            val randomNum = rand.nextFloat() * sum
-
-            var total = 0f
-            for(i in 0..(options.size-1)){
-                if(i in visited){
-                    continue
-                }
-                else{
-                    total += options[i]
-                    if(total > randomNum){
-                        return i
-                    }
-                }
-            }
-
-            return (0..(options.size-1)).last { it !in visited }
-        }
-
+        throw RuntimeException("This should never happen")
     }
 }

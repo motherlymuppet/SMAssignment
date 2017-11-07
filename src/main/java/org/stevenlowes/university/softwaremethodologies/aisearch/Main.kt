@@ -4,12 +4,11 @@ import org.stevenlowes.university.softwaremethodologies.aisearch.input.TextParse
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Matrix
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.groupers.SimpleGrouper
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.solvers.AntColonySolver
-import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.solvers.SimulatedAnnealingSolver
 
 fun main(args: Array<String>) {
     val rootLevel = TextParser.parseFile("testfiles/1.txt")
     //val solver = SimulatedAnnealingSolver(70.0, 1.0, 1.5, 1000, 1000000)
-    val solver = AntColonySolver(100, 0.5f, 1000f)
+    val solver = AntColonySolver(10 * 1000, 0.05f, 1000f)
     val grouper = SimpleGrouper()
     //val grouper = EnergeticGrouper(3f, 15)
     val matrix = Matrix(solver, grouper)
