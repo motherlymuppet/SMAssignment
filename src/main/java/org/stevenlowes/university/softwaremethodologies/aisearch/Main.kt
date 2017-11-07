@@ -1,5 +1,6 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch
 
+import org.stevenlowes.university.softwaremethodologies.aisearch.io.PathOutput
 import org.stevenlowes.university.softwaremethodologies.aisearch.io.TextParser
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Matrix
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.groupers.SimpleGrouper
@@ -22,4 +23,6 @@ fun main(args: Array<String>) {
     println("Done!")
     val dif = (endTime - startTime).toDouble() / 1000 / 1000 / 1000
     println(dif)
+
+    PathOutput.output(path, rootLevel.name)
 }

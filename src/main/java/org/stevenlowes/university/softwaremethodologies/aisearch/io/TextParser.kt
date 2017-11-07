@@ -15,11 +15,13 @@ class TextParser {
             val dirtyInput: String = file.readText(StandardCharsets.UTF_8)
             val cleanInput = dirtyInput.replace(Regex("[ \t\n\r]"), "")
             val delimitedInput = cleanInput.split(",")
+            val name = delimitedInput[0].substringAfter("NAME=")
             val size = delimitedInput[1].substringAfter("SIZE=").toInt()
             val numberStrings = delimitedInput.drop(2)
-            val cleanedNumberStrings = numberStrings.map { it.replace(Regex("[^0-9]"), "") }
+            val regex = Regex("[^0-9]")
+            val cleanedNumberStrings = numberStrings.map { it.replace(regex, "") }
             val numbers = cleanedNumberStrings.map { it.toFloat() }
-            val level = Level(0)
+            val level = Level(0, name)
             createMatrix(size, numbers, level)
             return level
         }
@@ -27,7 +29,7 @@ class TextParser {
         private fun createMatrix(size: Int, numbers: List<Float>, level: Level) {
             val matrix: MutableMap<Int, Map<Int, Float>> = mutableMapOf()
             var nums = numbers
-            ((size - 1).downTo(1)).forEach { edges ->
+            ((size - 1).downTo(0)).forEach { edges ->
                 val values = nums.take(edges)
                 nums = nums.drop(edges)
                 val startIndex = size - edges
