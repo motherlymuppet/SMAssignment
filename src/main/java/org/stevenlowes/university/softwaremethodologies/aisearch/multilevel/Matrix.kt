@@ -1,6 +1,6 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch.multilevel
 
-import org.stevenlowes.university.softwaremethodologies.aisearch.input.Path
+import org.stevenlowes.university.softwaremethodologies.aisearch.io.Path
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.groupers.Grouper
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.solvers.Solver
 

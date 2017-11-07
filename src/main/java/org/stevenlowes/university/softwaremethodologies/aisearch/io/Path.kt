@@ -1,4 +1,4 @@
-package org.stevenlowes.university.softwaremethodologies.aisearch.input
+package org.stevenlowes.university.softwaremethodologies.aisearch.io
 
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.Node
 

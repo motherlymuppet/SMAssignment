@@ -1,7 +1,6 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.solvers
 
-import org.stevenlowes.university.softwaremethodologies.aisearch.input.Path
-import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Level
+import org.stevenlowes.university.softwaremethodologies.aisearch.io.Path
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.Node
 
 interface Solver {

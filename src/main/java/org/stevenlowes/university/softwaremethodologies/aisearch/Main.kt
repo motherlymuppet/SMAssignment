@@ -1,6 +1,6 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch
 
-import org.stevenlowes.university.softwaremethodologies.aisearch.input.TextParser
+import org.stevenlowes.university.softwaremethodologies.aisearch.io.TextParser
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.Matrix
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.groupers.SimpleGrouper
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.solvers.AntColonySolver
