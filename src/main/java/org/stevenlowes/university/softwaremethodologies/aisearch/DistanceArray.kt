@@ -1,9 +1,7 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch
 
-import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.Node
-
-class NodeArray(size: Int, distances: Map<Int, Map<Int, Float>>): FastSquareArray(size,
-    {
+class DistanceArray(distances: Map<Int, Map<Int, Float>>) : FastSquareArray(distances.size,
+                                                                            {
         x, y->
         val attempt1 = distances.get(x)?.get(y)
         if(attempt1 == null){
