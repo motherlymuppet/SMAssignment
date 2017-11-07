@@ -18,26 +18,28 @@ class TextParser() {
             val size = delimitedInput[1].substringAfter("SIZE=").toInt()
             val numberStrings = delimitedInput.drop(2)
             val cleanedNumberStrings = numberStrings.map { it.replace(Regex("[^0-9]"), "") }
-            val numbers = Stack<Float>()
-            numbers.addAll(cleanedNumberStrings.map { it.toFloat() })
+            val numbers = cleanedNumberStrings.map { it.toFloat() }
             val level = Level(0)
             createMatrix(size, numbers, level)
             return level
         }
 
-        private fun createMatrix(size: Int, numbers: Stack<Float>, level: Level) {
-            val matrix: MutableMap<Node, Map<Node, Float>> = mutableMapOf()
-            val partitionedNumbers = partitionNumbers(numbers, size).withIndex()
-            partitionedNumbers.forEach {
-                val index = size - it.index - 1
-                val distances: Map<Node, Float> = ((index + 1)..(size + 1)).zip(it.value).toMap().mapKeys {
-                    RootNode(it.key,
-                             level)
-                }
-                val node = RootNode(index, level)
-                matrix.put(node, distances)
+        private fun createMatrix(size: Int, numbers: List<Float>, level: Level) {
+            val matrix: MutableMap<Int, Map<Int, Float>> = mutableMapOf()
+            var nums = numbers
+            ((size - 1).downTo(1)).forEach { edges ->
+                val values = nums.take(edges)
+                nums = nums.drop(edges)
+                val startIndex = size - edges
+                val indices = startIndex..(size - 1)
+                val map = indices.zip(values).toMap()
+                matrix.put(startIndex - 1, map)
             }
-            level.setNodes(matrix.toMap())
+
+            val nodes = (0..(size - 1)).map { RootNode(it, level) }
+            val nodeMatrix = matrix.mapKeys { nodes[it.key] as Node }.mapValues { it.value.mapKeys { nodes[it.key] as Node } }
+
+            level.setNodes(nodeMatrix)
         }
 
         private fun partitionNumbers(numbers: Stack<Float>, size: Int): List<List<Float>> {
