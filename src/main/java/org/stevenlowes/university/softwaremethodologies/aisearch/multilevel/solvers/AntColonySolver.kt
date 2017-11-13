@@ -154,10 +154,19 @@ private class DesirabilityArray(val distances: DistanceArray,
                                 pheremonesInfluence: Double)
     : FastSquareArray(distances.size,
                       { x, y ->
-                          (
-                                  Math.pow(pheremones.get(x, y).toDouble(), pheremonesInfluence) *
-                                          Math.pow(1 / distances.get(x, y).toDouble(), distanceInfluence)
+                          /*
+                          val pheremoneVal = pheremones.get(x,y)
+                          val distanceVal = distances.get(x,y)
+                          if (pheremoneVal == 0f || distanceVal == 0f && x != y){
+                              println("here")
+                          }
+                          */
+
+                          val desirability = (Math.pow(pheremones.get(x, y).toDouble(), pheremonesInfluence) *
+                                  Math.pow(1 / distances.get(x, y).toDouble(), distanceInfluence)
                                   ).toFloat()
+                          desirability
+
                       }
                      ) {
     companion object {
@@ -170,7 +179,12 @@ private class DesirabilityArray(val distances: DistanceArray,
      * Returns the node that the ant should move to
      */
     fun moveFrom(x: Int, options: List<Int>): Int {
-        val random = rand.nextFloat() * getMax(x, options)
+        val max = getMax(x, options)
+        if (max == Float.POSITIVE_INFINITY) {
+            //List contains an infinity. Use alternate randomiser
+            return infinityRandom(x, options)
+        }
+        val random = rand.nextFloat() * max
         return weightedRandom(x, options, random)
     }
 
@@ -180,10 +194,18 @@ private class DesirabilityArray(val distances: DistanceArray,
             val value = get(x, y)
             runningTotal += value
             if (runningTotal >= random) {
-                return y
+                if (x != y) {
+                    return y
+                }
             }
         }
         throw RuntimeException("This should never happen")
+    }
+
+    fun infinityRandom(x: Int, options: List<Int>): Int {
+        val infiniteOptions = getRow(x).withIndex().filter { it.index != x }.filter { it.index in options }.filter { it.value == Float.POSITIVE_INFINITY }.map { it.index }
+        val random = rand.nextInt(infiniteOptions.size)
+        return infiniteOptions[random]
     }
 
     fun getMax(x: Int, options: List<Int>): Float {
