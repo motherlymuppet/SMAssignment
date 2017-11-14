@@ -1,7 +1,7 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch
 
-class DistanceArray(distances: Map<Int, Map<Int, Float>>) : FastSquareArray(distances.size,
-                                                                            {
+class DistanceArray(distances: Map<Int, Map<Int, Float>>) : FastTriangularArray(distances.size,
+                                                                                {
         x, y->
         val attempt1 = distances.get(x)?.get(y)
         if(attempt1 == null){
