@@ -49,7 +49,8 @@ open class FastSquareArray(val size: Int, val initialiser: (Int, Int) -> Float){
         */
 
         val max = options.sumByDouble { get(x, it).toDouble() }
-        val random = rand.nextDouble() * max
+        val rand10 = rand.nextDouble()
+        val random = (rand10 * max)
 
         var runningTotal = 0f
         for (y in options) {
@@ -61,7 +62,9 @@ open class FastSquareArray(val size: Int, val initialiser: (Int, Int) -> Float){
                 }
             }
         }
-        throw RuntimeException("This should never happen")
+        // This should never happen, but can happen veeeeeery rarely due to floating point errors
+        println("WARNING: random value was greater than running total after exhausting all options")
+        return options.last()
     }
 
     val average get() = array.average().toFloat()

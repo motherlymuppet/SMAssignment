@@ -169,7 +169,7 @@ private class DesirabilityArray(val distances: DistanceArray,
      * Returns the node that the ant should move to
      */
     fun moveFrom(x: Int, options: List<Int>): Int {
-        return if (getRow(x).contains(Float.POSITIVE_INFINITY)) {
+        return if (options.map { get(x, it) }.contains(Float.POSITIVE_INFINITY)) {
             infinityRandom(x, options)
         }
         else {
