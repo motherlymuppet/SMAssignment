@@ -8,7 +8,7 @@ open class FastTriangularArray(size: Int, initialiser: (Int, Int) -> Float) : Fa
     }
     else {
         val x2 = maxOf(x, y)
-        val y2 = maxOf(x, y)
+        val y2 = minOf(x, y)
         initialiser(x2, y2)
     }
 }) {

@@ -35,28 +35,26 @@ open class FastSquareArray(val size: Int, val initialiser: (Int, Int) -> Float) 
         array[x * size + y] += increase
     }
 
-    open fun getRow(x: Int): FloatArray {
-        return (0..(size - 1)).map { get(x, it) }.toFloatArray()
+    open fun getRow(y: Int): FloatArray {
+        return (0..(size - 1)).map { get(it, y) }.toFloatArray()
     }
 
-    fun weightedRandom(x: Int, options: List<Int>): Int {
-        /*
+    fun weightedRandom(y: Int, options: List<Int>): Int {
         if(options.size == 1){
             return options.first()
         }
-        */
 
-        val max = options.map { get(x, it) }.filter { it != Float.NEGATIVE_INFINITY }.sum().toDouble()
+        val max = options.map { get(it, y) }.filter { it != Float.NEGATIVE_INFINITY }.sum().toDouble()
         val rand10 = rand.nextDouble()
         val random = (rand10 * max)
 
         var runningTotal = 0f
-        for (y in options) {
-            val value = get(x, y)
+        for (x in options) {
+            val value = get(x, x)
             runningTotal += value
             if (runningTotal >= random) {
-                if (x != y) {
-                    return y
+                if (x != x) {
+                    return x
                 }
             }
         }

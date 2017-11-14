@@ -1,6 +1,7 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.solvers
 
 import org.stevenlowes.university.softwaremethodologies.aisearch.DistanceArray
+import org.stevenlowes.university.softwaremethodologies.aisearch.FastSquareArray
 import org.stevenlowes.university.softwaremethodologies.aisearch.FastTriangularArray
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.Node
 import java.util.*
@@ -32,7 +33,6 @@ class AntColonySolver(val antCount: Int,
 
             val desirability = DesirabilityArray(distances, pheremones, culling, distanceInfluence, pherInfluence)
             desirability.compact()
-            desirability.normalise()
 
             val ants = generateAnts(antCount, desirability, distances)
             val depositingAnts = if (bestAnt == null) ants else ants.plus(bestAnt)
@@ -183,26 +183,41 @@ private class DesirabilityArray(val distances: DistanceArray,
                                 pheremonesInfluence: Double) {
     val size = distances.size
 
-    val desirability: List<List<Float>> =
+    val desirabilityArray = FastSquareArray(distances.size, { x, y ->
+        val cull = culling.isCulled(x, y)
 
-    private val idArray = FastTriangularArray(distances.size, { x, _ -> x.toFloat() })
+        if (cull) {
+            -1f
+        }
+        else {
+            val distanceValue = distances.get(x, y).toDouble()
+            val invDist = 1 / distanceValue
+            val distPow = Math.pow(invDist, distanceInfluence)
+            val pheremoneValue = pheremones.get(x, y).toDouble()
+            val pherPow = Math.pow(pheremoneValue, pheremonesInfluence)
+            (pherPow * distPow).toFloat()
+        }
+
+    })
+
+    private val idArray = FastSquareArray(distances.size, { x, _ -> x.toFloat() })
 
     fun compact() {
         println()
         println("Before:")
         idArray.print()
-        (0..(size - 1)).forEach { x ->
+        (0..(size - 1)).forEach { y ->
             var swapPoint = size - 1
-            var y = 0
-            while (y < swapPoint) {
-                val desirability = get(x, y)
+            var x = 0
+            while (x < swapPoint) {
+                val desirability = desirabilityArray.get(x, y)
                 if (desirability == -1f) {
                     swap(x, y, swapPoint)
                     println("Swapping $x, $y")
                     swapPoint--
                 }
                 else {
-                    y++
+                    x++
                 }
             }
         }
@@ -211,48 +226,71 @@ private class DesirabilityArray(val distances: DistanceArray,
         idArray.print()
     }
 
+    private fun swap(y: Int, xA: Int, xB: Int) {
+        val desirabilityTemp = desirabilityArray.get(xA, y)
+        desirabilityArray.set(xA, y, desirabilityArray.get(xB, y))
+        desirabilityArray.set(xB, y, desirabilityTemp)
 
-    fun normalise() {
-        val rowSums = (0..(size - 1)).associate { it to getRow(it).filter { it != -1f && it != Float.POSITIVE_INFINITY }.sum() }.toMap()
-        transform { x, _, value -> value / rowSums[x]!! }
+        val idTemp = idArray.get(xA, y)
+        idArray.set(xA, y, idArray.get(xB, y))
+        idArray.set(xB, y, idTemp)
     }
 
-    private fun swap(x: Int, yA: Int, yB: Int) {
-        val desirabilityTemp = get(x, yA)
-        set(x, yA, get(x, yB))
-        set(x, yB, desirabilityTemp)
-
-        val idTemp = idArray.get(x, yA)
-        idArray.set(x, yA, idArray.get(x, yB))
-        idArray.set(x, yB, idTemp)
-    }
-
-    private fun getActual(x: Int, abstractY: Int): Int {
-        return idArray.get(x, abstractY).toInt()
+    private fun getActual(abstractX: Int, y: Int): Int {
+        return idArray.get(abstractX, y).toInt()
     }
 
     /**
      * Returns the node that the ant should move to
      */
-    fun moveFrom(x: Int, options: List<Int>): Int {
-        val newOptions = options.map { getActual(x, it) }
-        val abstract = if (newOptions.map { get(x, it) }.contains(Float.POSITIVE_INFINITY)) {
-            infinityRandom(x, newOptions)
+    fun moveFrom(y: Int, options: List<Int>): Int {
+        val newOptions = options.map { getActual(it, y) }
+        val abstractX = if (newOptions.map { desirabilityArray.get(it, y) }.contains(Float.POSITIVE_INFINITY)) {
+            infinityRandom(y, newOptions)
         }
         else {
-            weightedRandom(x, newOptions)
+            weightedRandom(y, newOptions)
         }
-        return getActual(x, abstract)
+        return getActual(abstractX, y)
     }
 
-    fun infinityRandom(x: Int, options: List<Int>): Int {
-        val infiniteOptions = getRow(x).withIndex().filter {
+    companion object {
+        val rand = Random()
+    }
+
+    fun weightedRandom(y: Int, options: List<Int>): Int {
+        if (options.size == 1) {
+            return options.first()
+        }
+
+        val abstractOptions = options.map { x -> getActual(x, y) }.sorted().map { x ->
+            x to desirabilityArray.get(x,
+                                       y)
+        }.toMap()
+        val max = abstractOptions.values.sum()
+
+        val random = rand.nextFloat() * max
+
+        var runningTotal = 0f
+        for ((abstractX, value) in abstractOptions) {
+            runningTotal += value
+            if (runningTotal >= random) {
+                return abstractX
+            }
+        }
+        // This should never happen, but can happen veeeeeery rarely due to floating point errors
+        println("WARNING: random value was greater than running total after exhausting all options")
+        return options.last()
+    }
+
+    fun infinityRandom(y: Int, options: List<Int>): Int {
+        val infiniteOptions = desirabilityArray.getRow(y).withIndex().filter {
             (it.value == Float.POSITIVE_INFINITY) &&
-                    (it.index != x) &&
+                    (it.index != y) &&
                     (it.index in options)
         }.map { it.index }
 
-        return pheremones.weightedRandom(x, infiniteOptions)
+        return pheremones.weightedRandom(y, infiniteOptions)
     }
 }
 

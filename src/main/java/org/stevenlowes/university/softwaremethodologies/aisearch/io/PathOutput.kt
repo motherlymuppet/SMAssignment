@@ -7,7 +7,7 @@ class PathOutput() {
         fun output(path: Path, name: String) {
             val length = path.nodes.size
             val distance = path.distance
-            val nodes = path.nodes.map { (it.id + 1).toString() }.joinToString(",")
+            val nodes = path.nodes.joinToString(",") { (it.id + 1).toString() }
 
             PrintWriter("tour$name.txt").use {
                 it.println("NAME = $name,")
