@@ -73,4 +73,10 @@ open class FastTriangularArray(val size: Int, val initialiser: (Int, Int) -> Flo
     }
 
     val average get() = array.average().toFloat()
+
+    fun print() {
+        (0..(size - 1)).forEach {
+            println(getRow(it).joinToString())
+        }
+    }
 }

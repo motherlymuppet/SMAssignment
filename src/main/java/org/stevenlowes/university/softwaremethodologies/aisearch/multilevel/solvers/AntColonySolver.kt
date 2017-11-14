@@ -258,30 +258,6 @@ private class DesirabilityArray(val distances: DistanceArray,
         return getActual(x, abstract)
     }
 
-    override fun weightedRandom(x: Int, options: List<Int>): Int {
-        if (options.size == 1) {
-            return options.first()
-        }
-
-        val max = options.sumByDouble { get(x, it).toDouble() }
-        val rand10 = rand.nextDouble()
-        val random = (rand10 * max)
-
-        var runningTotal = 0f
-        for (y in options) {
-            val value = get(x, y)
-            runningTotal += value
-            if (runningTotal >= random) {
-                if (x != y) {
-                    return y
-                }
-            }
-        }
-        // This should never happen, but can happen veeeeeery rarely due to floating point errors
-        println("WARNING: random value was greater than running total after exhausting all options")
-        return options.last()
-    }
-
     fun infinityRandom(x: Int, options: List<Int>): Int {
         val infiniteOptions = getRow(x).withIndex().filter {
             (it.value == Float.POSITIVE_INFINITY) &&
