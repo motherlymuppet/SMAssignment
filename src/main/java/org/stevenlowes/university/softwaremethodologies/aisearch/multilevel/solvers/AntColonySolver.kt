@@ -180,23 +180,10 @@ private class DesirabilityArray(val distances: DistanceArray,
                                 val pheremones: Pheremones,
                                 val culling: CullingArray,
                                 distanceInfluence: Double,
-                                pheremonesInfluence: Double)
-    : FastTriangularArray(distances.size,
-                          { x, y ->
-                          val culled = culling.isCulled(x, y)
-                          if (culled) {
-                              -1f
-                          }
-                          else {
-                              val pheremone = pheremones.get(x, y).toDouble()
-                              val distance = distances.get(x, y).toDouble()
-                              val pheremonesPow = Math.pow(pheremone, pheremonesInfluence)
-                              val invDist = 1 / distance
-                              val invDistPow = Math.pow(invDist, distanceInfluence)
-                              (pheremonesPow * invDistPow).toFloat()
-                          }
-                      }
-                         ) {
+                                pheremonesInfluence: Double) {
+    val size = distances.size
+
+    val desirability: List<List<Float>> =
 
     private val idArray = FastTriangularArray(distances.size, { x, _ -> x.toFloat() })
 
