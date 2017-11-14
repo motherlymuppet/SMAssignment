@@ -201,9 +201,9 @@ private class DesirabilityArray(val distances: DistanceArray,
     private val idArray = FastSquareArray(distances.size, { x, _ -> x.toFloat() })
 
     fun compact() {
-        if (array.contains(-1f)) {
-            println("here")
-        }
+        println()
+        println("Before:")
+        idArray.print()
         (0..(size - 1)).forEach { x ->
             var swapPoint = size - 1
             var y = 0
@@ -211,11 +211,17 @@ private class DesirabilityArray(val distances: DistanceArray,
                 val desirability = get(x, y)
                 if (desirability == -1f) {
                     swap(x, y, swapPoint)
+                    println("Swapping $x, $y")
                     swapPoint--
                 }
-                y++
+                else {
+                    y++
+                }
             }
         }
+        println()
+        println("After")
+        idArray.print()
     }
 
 

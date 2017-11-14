@@ -30,6 +30,10 @@ open class FastSquareArray(val size: Int, val initialiser: (Int, Int) -> Float){
         }
     }
 
+    fun print() {
+        (0..(size - 1)).forEach { println(getRow(it).joinToString()) }
+    }
+
     fun add(x: Int, y: Int, increase: Float){
         array[x * size + y]+=increase
         array[y * size + x]+=increase
