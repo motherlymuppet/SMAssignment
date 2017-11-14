@@ -9,22 +9,42 @@ import java.util.concurrent.Executors
 
 class AntColonySolver(val antCount: Int,
                       val distanceInfluence: Double,
-                      val pheremonesInfluence: Double,
-                      val pheremoneEvaporation: Float,
-                      val pheremoneDepositing: Float) : Solver {
+                      val pherInfluence: Double,
+                      val pherStart: Float,
+                      val pherEvaporation: Float,
+                      val pherDepositing: Float,
+                      val cullingCutoff: Float) : Solver {
     override fun bestPath(nodes: Collection<Node>): List<Node> {
         val distances = nodes.first().level.array
-        val pheremones = Pheremones(distances, 0.2f)
+        val pheremones = Pheremones(distances, pherStart)
+        val culling = CullingArray(distances.size)
 
         var energy = 10
 
         var bestAnt: Ant? = null
         while (energy > 0) {
+            println()
             println("Iterating! $energy")
-            val desirability = DesirabilityArray(distances, pheremones, distanceInfluence, pheremonesInfluence)
+            val total = culling.array.size
+            val culled = culling.array.count { it == 1f }
+            val percent = (culled.toDouble()) / (total.toDouble())
+            println("Culled $culled of $total ($percent%)")
+
+            val desirability = DesirabilityArray(distances, pheremones, culling, distanceInfluence, pherInfluence)
+            desirability.compact()
+            desirability.normalise()
+
             val ants = generateAnts(antCount, desirability, distances)
             val depositingAnts = if (bestAnt == null) ants else ants.plus(bestAnt)
-            updatePheremones(depositingAnts, pheremones, pheremoneEvaporation, pheremoneDepositing)
+
+            updatePheremones(depositingAnts, pheremones, pherEvaporation, pherDepositing)
+
+            pheremones.transform { x, y, value ->
+                if (value < cullingCutoff) {
+                    culling.cull(x, y)
+                }
+                value
+            }
 
             val newBestAnt = ants.minBy { it.distance }!!
 
@@ -98,7 +118,10 @@ private class Ant(startNode: Int, desirability: DesirabilityArray, distances: Di
         while (options.isNotEmpty()) {
             val newNode = desirability.moveFrom(previous, options)
 
-            options.remove(newNode)
+            val removed = options.remove(newNode)
+            if (!removed) {
+                println("here")
+            }
 
             path[currentIndex] = newNode
             currentIndex++
@@ -155,26 +178,102 @@ private class Pheremones(val distances: DistanceArray, initial: Float) : FastSqu
 
 private class DesirabilityArray(val distances: DistanceArray,
                                 val pheremones: Pheremones,
+                                val culling: CullingArray,
                                 distanceInfluence: Double,
                                 pheremonesInfluence: Double)
     : FastSquareArray(distances.size,
                       { x, y ->
-                          (Math.pow(pheremones.get(x, y).toDouble(), pheremonesInfluence) *
-                                  Math.pow(1 / distances.get(x, y).toDouble(), distanceInfluence)
-                                  ).toFloat()
+                          val culled = culling.isCulled(x, y)
+                          if (culled) {
+                              -1f
+                          }
+                          else {
+                              val pheremone = pheremones.get(x, y).toDouble()
+                              val distance = distances.get(x, y).toDouble()
+                              val pheremonesPow = Math.pow(pheremone, pheremonesInfluence)
+                              val invDist = 1 / distance
+                              val invDistPow = Math.pow(invDist, distanceInfluence)
+                              (pheremonesPow * invDistPow).toFloat()
+                          }
                       }
                      ) {
+
+    private val idArray = FastSquareArray(distances.size, { x, _ -> x.toFloat() })
+
+    fun compact() {
+        if (array.contains(-1f)) {
+            println("here")
+        }
+        (0..(size - 1)).forEach { x ->
+            var swapPoint = size - 1
+            var y = 0
+            while (y < swapPoint) {
+                val desirability = get(x, y)
+                if (desirability == -1f) {
+                    swap(x, y, swapPoint)
+                    swapPoint--
+                }
+                y++
+            }
+        }
+    }
+
+
+    fun normalise() {
+        val rowSums = (0..(size - 1)).associate { it to getRow(it).filter { it != -1f && it != Float.POSITIVE_INFINITY }.sum() }.toMap()
+        transform { x, _, value -> value / rowSums[x]!! }
+    }
+
+    private fun swap(x: Int, yA: Int, yB: Int) {
+        val desirabilityTemp = get(x, yA)
+        set(x, yA, get(x, yB))
+        set(x, yB, desirabilityTemp)
+
+        val idTemp = idArray.get(x, yA)
+        idArray.set(x, yA, idArray.get(x, yB))
+        idArray.set(x, yB, idTemp)
+    }
+
+    private fun getActual(x: Int, abstractY: Int): Int {
+        return idArray.get(x, abstractY).toInt()
+    }
 
     /**
      * Returns the node that the ant should move to
      */
     fun moveFrom(x: Int, options: List<Int>): Int {
-        return if (options.map { get(x, it) }.contains(Float.POSITIVE_INFINITY)) {
-            infinityRandom(x, options)
+        val newOptions = options.map { getActual(x, it) }
+        val abstract = if (newOptions.map { get(x, it) }.contains(Float.POSITIVE_INFINITY)) {
+            infinityRandom(x, newOptions)
         }
         else {
-            weightedRandom(x, options)
+            weightedRandom(x, newOptions)
         }
+        return getActual(x, abstract)
+    }
+
+    override fun weightedRandom(x: Int, options: List<Int>): Int {
+        if (options.size == 1) {
+            return options.first()
+        }
+
+        val max = options.sumByDouble { get(x, it).toDouble() }
+        val rand10 = rand.nextDouble()
+        val random = (rand10 * max)
+
+        var runningTotal = 0f
+        for (y in options) {
+            val value = get(x, y)
+            runningTotal += value
+            if (runningTotal >= random) {
+                if (x != y) {
+                    return y
+                }
+            }
+        }
+        // This should never happen, but can happen veeeeeery rarely due to floating point errors
+        println("WARNING: random value was greater than running total after exhausting all options")
+        return options.last()
     }
 
     fun infinityRandom(x: Int, options: List<Int>): Int {
@@ -186,4 +285,12 @@ private class DesirabilityArray(val distances: DistanceArray,
 
         return pheremones.weightedRandom(x, infiniteOptions)
     }
+}
+
+private class CullingArray(size: Int) : FastSquareArray(size, { _, _ -> 0f }) {
+    fun cull(x: Int, y: Int) {
+        set(x, y, 1f)
+    }
+
+    fun isCulled(x: Int, y: Int): Boolean = get(x, y) == 1f
 }

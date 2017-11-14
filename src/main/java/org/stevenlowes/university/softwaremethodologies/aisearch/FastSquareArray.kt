@@ -41,12 +41,10 @@ open class FastSquareArray(val size: Int, val initialiser: (Int, Int) -> Float){
         return array.copyOfRange(startIndex, endIndex)
     }
 
-    fun weightedRandom(x: Int, options: List<Int>): Int {
-        /*
+    open fun weightedRandom(x: Int, options: List<Int>): Int {
         if(options.size == 1){
             return options.first()
         }
-        */
 
         val max = options.sumByDouble { get(x, it).toDouble() }
         val rand10 = rand.nextDouble()
