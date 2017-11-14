@@ -2,11 +2,17 @@ package org.stevenlowes.university.softwaremethodologies.aisearch
 
 import java.util.*
 
-open class FastSquareArray(val size: Int, val initialiser: (Int, Int) -> Float){
-    val array: FloatArray = FloatArray(size * size, init = {initialiser(it%size, it/size)})
+open class FastTriangularArray(val size: Int, val initialiser: (Int, Int) -> Float) {
+    val array: FloatArray = FloatArray(size * size, init = {
+        val x = it % size
+        val y = it / size
+        if (x < y) Float.NEGATIVE_INFINITY else initialiser(x, y)
+    })
 
     fun get(x: Int, y: Int): Float{
-        return array[x * size + y]
+        val x2 = maxOf(x, y)
+        val y2 = minOf(x, y)
+        return array[y2 * size + x2]
     }
 
     companion object {
@@ -14,8 +20,9 @@ open class FastSquareArray(val size: Int, val initialiser: (Int, Int) -> Float){
     }
 
     fun set(x: Int, y: Int, value: Float){
-        array[x*size + y] = value
-        array[y*size + x] = value
+        val x2 = maxOf(x, y)
+        val y2 = minOf(x, y)
+        array[y2 * size + x2] = value
     }
 
     fun averageDistanceTo(id: Int): Float {
@@ -30,27 +37,23 @@ open class FastSquareArray(val size: Int, val initialiser: (Int, Int) -> Float){
         }
     }
 
-    fun print() {
-        (0..(size - 1)).forEach { println(getRow(it).joinToString()) }
-    }
-
     fun add(x: Int, y: Int, increase: Float){
         array[x * size + y]+=increase
         array[y * size + x]+=increase
     }
 
     fun getRow(x: Int): FloatArray{
-        val startIndex = x * size
-        val endIndex = (x + 1) * size
-        return array.copyOfRange(startIndex, endIndex)
+        return (0..(size - 1)).map { get(x, it) }.toFloatArray()
     }
 
-    open fun weightedRandom(x: Int, options: List<Int>): Int {
+    fun weightedRandom(x: Int, options: List<Int>): Int {
+        /*
         if(options.size == 1){
             return options.first()
         }
+        */
 
-        val max = options.sumByDouble { get(x, it).toDouble() }
+        val max = options.map { get(x, it) }.filter { it != Float.NEGATIVE_INFINITY }.sum().toDouble()
         val rand10 = rand.nextDouble()
         val random = (rand10 * max)
 

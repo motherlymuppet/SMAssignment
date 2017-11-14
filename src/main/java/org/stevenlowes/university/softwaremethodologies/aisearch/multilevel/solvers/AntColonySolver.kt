@@ -1,7 +1,7 @@
 package org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.solvers
 
 import org.stevenlowes.university.softwaremethodologies.aisearch.DistanceArray
-import org.stevenlowes.university.softwaremethodologies.aisearch.FastSquareArray
+import org.stevenlowes.university.softwaremethodologies.aisearch.FastTriangularArray
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.Node
 import java.util.*
 import java.util.concurrent.Callable
@@ -138,8 +138,8 @@ private class Ant(startNode: Int, desirability: DesirabilityArray, distances: Di
 
 }
 
-private class Pheremones(val distances: DistanceArray, initial: Float) : FastSquareArray(distances.size,
-                                                                                         { _, _ -> initial }) {
+private class Pheremones(val distances: DistanceArray, initial: Float) : FastTriangularArray(distances.size,
+                                                                                             { _, _ -> initial }) {
     fun evaporate(evaporationRate: Float) {
         val multiplier = (1f - evaporationRate)
         transform { _, _, current ->
@@ -181,8 +181,8 @@ private class DesirabilityArray(val distances: DistanceArray,
                                 val culling: CullingArray,
                                 distanceInfluence: Double,
                                 pheremonesInfluence: Double)
-    : FastSquareArray(distances.size,
-                      { x, y ->
+    : FastTriangularArray(distances.size,
+                          { x, y ->
                           val culled = culling.isCulled(x, y)
                           if (culled) {
                               -1f
@@ -196,9 +196,9 @@ private class DesirabilityArray(val distances: DistanceArray,
                               (pheremonesPow * invDistPow).toFloat()
                           }
                       }
-                     ) {
+                         ) {
 
-    private val idArray = FastSquareArray(distances.size, { x, _ -> x.toFloat() })
+    private val idArray = FastTriangularArray(distances.size, { x, _ -> x.toFloat() })
 
     fun compact() {
         println()
@@ -293,7 +293,7 @@ private class DesirabilityArray(val distances: DistanceArray,
     }
 }
 
-private class CullingArray(size: Int) : FastSquareArray(size, { _, _ -> 0f }) {
+private class CullingArray(size: Int) : FastTriangularArray(size, { _, _ -> 0f }) {
     fun cull(x: Int, y: Int) {
         set(x, y, 1f)
     }
