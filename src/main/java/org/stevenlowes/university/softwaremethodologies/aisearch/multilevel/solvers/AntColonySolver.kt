@@ -166,7 +166,7 @@ private class Pheremones(val distances: DistanceArray, initial: Float) : FastTri
         pairs.forEach { (x, y) ->
             val distance = distances.get(x, y)
             if (distance == 0f) {
-                add(x, y, 1f)
+                add(x, y, pheremoneDepositing)
             }
             else {
                 val amount = pheremoneDepositing / distance
@@ -304,7 +304,14 @@ private class DesirabilityArray(val distances: DistanceArray,
     }
 }
 
-private class CullingArray(size: Int) : FastTriangularArray(size, { _, _ -> 0f }) {
+private class CullingArray(size: Int) : FastTriangularArray(size, { x, y ->
+    if(x == y){
+        1f
+    }
+    else{
+        0f
+    }
+}) {
     fun cull(x: Int, y: Int) {
         set(x, y, 1f)
     }

@@ -23,7 +23,7 @@ open class FastSquareArray(val size: Int, val initialiser: (Int, Int) -> Float) 
         return getRow(id).average().toFloat()
     }
 
-    fun transform(transformation: (Int, Int, Float) -> Float) {
+    open fun transform(transformation: (Int, Int, Float) -> Float) {
         for (x in 0..(size - 1)) {
             for (y in 0..(size - 1)) {
                 set(x, y, transformation(x, y, get(x, y)))
@@ -32,7 +32,7 @@ open class FastSquareArray(val size: Int, val initialiser: (Int, Int) -> Float) 
     }
 
     open fun add(x: Int, y: Int, increase: Float) {
-        array[x * size + y] += increase
+        array[y * size + x] += increase
     }
 
     open fun getRow(y: Int): FloatArray {
@@ -64,6 +64,8 @@ open class FastSquareArray(val size: Int, val initialiser: (Int, Int) -> Float) 
     }
 
     open val average get() = array.average().toFloat()
+
+
 
     fun print() {
         (0..(size - 1)).forEach {

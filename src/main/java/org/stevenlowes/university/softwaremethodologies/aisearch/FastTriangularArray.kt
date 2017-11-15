@@ -29,6 +29,14 @@ open class FastTriangularArray(size: Int, initialiser: (Int, Int) -> Float) : Fa
         super.set(x2, y2, value)
     }
 
+    override fun transform(transformation: (Int, Int, Float) -> Float) {
+        for (x in 0..(size - 1)) {
+            for (y in 0..x) {
+                set(x, y, transformation(x, y, get(x, y)))
+            }
+        }
+    }
+
     override fun averageDistanceTo(id: Int): Float {
         return getRow(id).filter { it != Float.NEGATIVE_INFINITY }.average().toFloat()
     }
@@ -39,9 +47,11 @@ open class FastTriangularArray(size: Int, initialiser: (Int, Int) -> Float) : Fa
         super.add(x2, y2, increase)
     }
 
-    override fun getRow(x: Int): FloatArray {
-        return getRow(x).filter { it != Float.NEGATIVE_INFINITY }.toFloatArray()
+    override fun getRow(y: Int): FloatArray {
+        return getRow(y).filter { it != Float.NEGATIVE_INFINITY }.toFloatArray()
     }
+
+
 
     override val average get() = array.filterNot { it == Float.NEGATIVE_INFINITY }.average().toFloat()
 }
