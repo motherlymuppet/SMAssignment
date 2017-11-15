@@ -4,6 +4,7 @@ import org.stevenlowes.university.softwaremethodologies.aisearch.DistanceArray
 import org.stevenlowes.university.softwaremethodologies.aisearch.FastSquareArray
 import org.stevenlowes.university.softwaremethodologies.aisearch.FastTriangularArray
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.nodes.Node
+import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
@@ -14,13 +15,15 @@ class AntColonySolver(val antCount: Int,
                       val pherStart: Float,
                       val pherEvaporation: Float,
                       val pherDepositing: Float,
-                      val cullingCutoff: Float) : Solver {
+                      val cullingRate: Float,
+                      val energy: Int,
+                      val minimumEdges: Int) : Solver {
     override fun bestPath(nodes: Collection<Node>): List<Node> {
         val distances = nodes.first().level.array
         val pheremones = Pheremones(distances, pherStart)
         val culling = CullingArray(distances.size)
 
-        var energy = 10
+        var energy = this.energy
 
         var bestAnt: Ant? = null
         while (energy > 0) {
@@ -35,23 +38,22 @@ class AntColonySolver(val antCount: Int,
             desirability.compact()
 
             val ants = generateAnts(antCount, desirability, distances)
+            println("Finished Generating Ants")
             val depositingAnts = if (bestAnt == null) ants else ants.plus(bestAnt)
 
             updatePheremones(depositingAnts, pheremones, pherEvaporation, pherDepositing)
 
-            pheremones.transform { x, y, value ->
-                if (value < cullingCutoff) {
-                    culling.cull(x, y)
-                }
-                value
-            }
+            val nonCulled = culling.array.zip(desirability.desirabilityArray.array).withIndex().filter { it.value.first == 0f }.map { it.index to it.value.second }.sortedBy { it.second }.map { (it.first % desirability.size) to (it.first / desirability.size) }
+            val cullCount = ((nonCulled.size - minimumEdges) * cullingRate).toInt()
+            val toBeCulled = nonCulled.take(cullCount)
+            toBeCulled.forEach { (x, y) -> culling.cull(x, y) }
 
             val newBestAnt = ants.minBy { it.distance }!!
 
             energy -= 1
 
             if (bestAnt == null || newBestAnt.distance < bestAnt.distance) {
-                energy = 10
+                energy = this.energy
                 bestAnt = newBestAnt
                 println("Best Ant: ${bestAnt.distance}")
             }
@@ -73,7 +75,9 @@ class AntColonySolver(val antCount: Int,
     }
 
     private fun generateAnts(count: Int, desirability: DesirabilityArray, distances: DistanceArray): List<Ant> {
-        if (count * desirability.size * desirability.size > 100 * 1000 * 1000) {
+        val size = BigInteger.valueOf(count.toLong()) * BigInteger.valueOf(desirability.size.toLong()) * BigInteger.valueOf(
+                desirability.size.toLong())
+        if (size > BigInteger.valueOf(100 * 1000 * 1000)) {
             val cpus = Runtime.getRuntime().availableProcessors()
             println("Generating ants using $cpus threads")
             val countPer = count / cpus
@@ -212,10 +216,10 @@ private class DesirabilityArray(val distances: DistanceArray,
             var x = 0
             while (x < swapPoint) {
                 if (culling.isCulled(x, y)) {
-                    while(culling.isCulled(swapPoint, y) && x < swapPoint){
+                    while (culling.isCulled(swapPoint, y) && x < swapPoint) {
                         swapPoint--
                     }
-                    if(x >= swapPoint){
+                    if (x >= swapPoint) {
                         break
                     }
 
@@ -255,7 +259,10 @@ private class DesirabilityArray(val distances: DistanceArray,
      */
     fun moveFrom(current: Int, absoluteOptions: List<Int>): Int {
         val abstractOptions = absoluteOptions.map { getActual(it, current) }.sorted()
-        val abstractX = if (abstractOptions.map { desirabilityArray.get(it, current) }.contains(Float.POSITIVE_INFINITY)) {
+        val abstractX = if (abstractOptions.map {
+            desirabilityArray.get(it,
+                                  current)
+        }.contains(Float.POSITIVE_INFINITY)) {
             infinityRandom(current, abstractOptions)
         }
         else {
@@ -277,7 +284,7 @@ private class DesirabilityArray(val distances: DistanceArray,
         var total = 0f
         for (x in abstractOptions) {
             val value = desirabilityArray.get(x, y)
-            if(value == -1f){
+            if (value == -1f) {
                 break
             }
             total += value
@@ -294,7 +301,7 @@ private class DesirabilityArray(val distances: DistanceArray,
             }
         }
         // This happens occasionally when we are forced to take a culled edge. It is unlikely that an ant taking a culled edge has any chance of being the new best ant, so I don't mind the fact that we essentially just choose randomly with abstractOptions.last()
-        println("WARNING: random value was greater than running total after exhausting all abstractOptions")
+        //println("WARNING: random value was greater than running total after exhausting all abstractOptions")
         return abstractOptions.last()
     }
 
@@ -310,10 +317,10 @@ private class DesirabilityArray(val distances: DistanceArray,
 }
 
 private class CullingArray(size: Int) : FastTriangularArray(size, { x, y ->
-    if(x == y){
+    if (x == y) {
         1f
     }
-    else{
+    else {
         0f
     }
 }) {
