@@ -26,7 +26,7 @@ class AntColonySolver(val antCount: Int,
         while (energy > 0) {
             println()
             println("Iterating! $energy")
-            val total = culling.array.size
+            val total = culling.array.count { it == 1f || it == 0f }
             val culled = culling.array.count { it == 1f }
             val percent = (culled.toDouble()) / (total.toDouble())
             println("Culled $culled of $total ($percent%)")
@@ -206,28 +206,34 @@ private class DesirabilityArray(val distances: DistanceArray,
         println()
         println("Before:")
         idArray.print()
+        println()
+        desirabilityArray.print()
         (0..(size - 1)).forEach { y ->
             var swapPoint = size - 1
             var x = 0
             while (x < swapPoint) {
                 val desirability = desirabilityArray.get(x, y)
                 if (desirability == -1f) {
-                    swap(x, y, swapPoint)
-                    println("Swapping $x, $y")
-
-                    swapPoint--
-                    while(desirabilityArray.get(swapPoint, y) == -1f){
+                    while(desirabilityArray.get(swapPoint, y) == -1f && x < swapPoint){
                         swapPoint--
                     }
+                    if(x >= swapPoint){
+                        break
+                    }
+
+                    swap(y, x, swapPoint)
+                    println("Swapping $x with $swapPoint, on row $y")
+
+                    swapPoint--
                 }
-                else {
-                    x++
-                }
+                x++
             }
         }
         println()
         println("After")
         idArray.print()
+        println()
+        desirabilityArray.print()
     }
 
     private fun swap(y: Int, xA: Int, xB: Int) {
