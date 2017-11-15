@@ -214,7 +214,11 @@ private class DesirabilityArray(val distances: DistanceArray,
                 if (desirability == -1f) {
                     swap(x, y, swapPoint)
                     println("Swapping $x, $y")
+
                     swapPoint--
+                    while(desirabilityArray.get(swapPoint, y) == -1f){
+                        swapPoint--
+                    }
                 }
                 else {
                     x++
