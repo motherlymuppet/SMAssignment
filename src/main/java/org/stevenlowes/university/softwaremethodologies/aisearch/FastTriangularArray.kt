@@ -31,7 +31,7 @@ open class FastTriangularArray(size: Int, initialiser: (Int, Int) -> Float) : Fa
 
     override fun transform(transformation: (Int, Int, Float) -> Float) {
         for (x in 0..(size - 1)) {
-            for (y in 0..x) {
+            for (y in 0..(size-x-1)) {
                 set(x, y, transformation(x, y, get(x, y)))
             }
         }

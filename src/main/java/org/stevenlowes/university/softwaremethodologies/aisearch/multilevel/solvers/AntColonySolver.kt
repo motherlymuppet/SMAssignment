@@ -28,7 +28,7 @@ class AntColonySolver(val antCount: Int,
             println("Iterating! $energy")
             val total = culling.array.count { it == 1f || it == 0f }
             val culled = culling.array.count { it == 1f }
-            val percent = (culled.toDouble()) / (total.toDouble())
+            val percent = (culled.toDouble()) / (total.toDouble()) * 100
             println("Culled $culled of $total ($percent%)")
 
             val desirability = DesirabilityArray(distances, pheremones, culling, distanceInfluence, pherInfluence)
@@ -118,10 +118,7 @@ private class Ant(startNode: Int, desirability: DesirabilityArray, distances: Di
         while (options.isNotEmpty()) {
             val newNode = desirability.moveFrom(previous, options)
 
-            val removed = options.remove(newNode)
-            if (!removed) {
-                println("here")
-            }
+            options.remove(newNode)
 
             path[currentIndex] = newNode
             currentIndex++
@@ -212,9 +209,8 @@ private class DesirabilityArray(val distances: DistanceArray,
             var swapPoint = size - 1
             var x = 0
             while (x < swapPoint) {
-                val desirability = desirabilityArray.get(x, y)
-                if (desirability == -1f) {
-                    while(desirabilityArray.get(swapPoint, y) == -1f && x < swapPoint){
+                if (culling.isCulled(x, y)) {
+                    while(culling.isCulled(swapPoint, y) && x < swapPoint){
                         swapPoint--
                     }
                     if(x >= swapPoint){
@@ -253,44 +249,49 @@ private class DesirabilityArray(val distances: DistanceArray,
     /**
      * Returns the node that the ant should move to
      */
-    fun moveFrom(y: Int, options: List<Int>): Int {
-        val newOptions = options.map { getActual(it, y) }
-        val abstractX = if (newOptions.map { desirabilityArray.get(it, y) }.contains(Float.POSITIVE_INFINITY)) {
-            infinityRandom(y, newOptions)
+    fun moveFrom(current: Int, absoluteOptions: List<Int>): Int {
+        val abstractOptions = absoluteOptions.map { getActual(it, current) }.sorted()
+        val abstractX = if (abstractOptions.map { desirabilityArray.get(it, current) }.contains(Float.POSITIVE_INFINITY)) {
+            infinityRandom(current, abstractOptions)
         }
         else {
-            weightedRandom(y, newOptions)
+            weightedRandom(current, abstractOptions)
         }
-        return getActual(abstractX, y)
+        return getActual(abstractX, current)
     }
 
     companion object {
         val rand = Random()
     }
 
-    fun weightedRandom(y: Int, options: List<Int>): Int {
-        if (options.size == 1) {
-            return options.first()
+    fun weightedRandom(y: Int, abstractOptions: List<Int>): Int {
+        if (abstractOptions.size == 1) {
+            return abstractOptions.first()
         }
 
-        val abstractOptions = options.map { x -> getActual(x, y) }.sorted().map { x ->
-            x to desirabilityArray.get(x,
-                                       y)
-        }.toMap()
-        val max = abstractOptions.values.sum()
+        val size = desirabilityArray.size
+        var total = 0f
+        for (x in abstractOptions) {
+            val value = desirabilityArray.get(x, y)
+            if(value == -1f){
+                break
+            }
+            total += value
+        }
 
-        val random = rand.nextFloat() * max
+        val random = rand.nextFloat() * total
 
         var runningTotal = 0f
-        for ((abstractX, value) in abstractOptions) {
+        for (x in abstractOptions) {
+            val value = desirabilityArray.get(x, y)
             runningTotal += value
             if (runningTotal >= random) {
-                return abstractX
+                return x
             }
         }
-        // This should never happen, but can happen veeeeeery rarely due to floating point errors
-        println("WARNING: random value was greater than running total after exhausting all options")
-        return options.last()
+        // This happens occasionally when we are forced to take a culled edge. It is unlikely that an ant taking a culled edge has any chance of being the new best ant, so I don't mind the fact that we essentially just choose randomly with abstractOptions.last()
+        println("WARNING: random value was greater than running total after exhausting all abstractOptions")
+        return abstractOptions.last()
     }
 
     fun infinityRandom(y: Int, options: List<Int>): Int {
