@@ -1,0 +1,62 @@
+\documentclass[a4paper, 11pt,table]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[toc,page]{appendix}
+\usepackage{varioref}
+\usepackage{hyperref}
+\usepackage[nameinlink]{cleveref}
+\usepackage{nameref}
+\usepackage{parskip}
+\usepackage{multicol}%multi column bib
+\usepackage[sectionbib, tocbib, numberedbib, bibnewpage]{apacite}%Citations
+\usepackage{tikz}
+\usepackage{pdflscape}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{tabu}
+
+\bibliographystyle{apacite}
+
+\author{Steven Lowes}
+\title{Software Methodo}
+\date{\today{}}
+
+\newcommand{\smartref}[1]{%
+	\hyperref[#1]{\cref{#1}, ``\nameref{#1}", \vpageref{#1}}%
+}
+
+\begin{document}
+
+	\section{Algorithm A: Simmulated Annealing}
+	
+	\subsection{Results}
+	\label{useCase:socialRespond}
+	\begin{center}
+		\rowcolors{0}{gray!25}{white}
+		\begin{tabu}{|c c c|}
+			\textbf{Nodes} & \textbf{Tour Length} & \textbf{Time to Compute (s)}\\
+			
+			12 & 10 & 0.2s \\
+			17 & 20 & 0.7s\\
+			21 & 30 & 2s\\
+			26 & 40 & 3s\\
+			42 & 50 & 5s\\
+			48 & 70 & 50s\\
+			58 & 80 & 1m20s\\
+			175 & 100 & 4m50s\\
+			180 & 1,000 & 15m25s\\
+			535 & 48,560 & 1h20m5s\\
+		\end{tabu}
+	\end{center}
+	
+	\section{Algorithm B: Ant Colony Optimisation}
+	
+	\section{Comparison}
+	
+	\newpage
+
+		\begin{multicols}{2}
+			%\bibliography{bib}
+		\end{multicols}
+    
+	\end{document}
