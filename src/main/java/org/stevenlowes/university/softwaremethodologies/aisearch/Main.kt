@@ -8,15 +8,15 @@ import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.grou
 import org.stevenlowes.university.softwaremethodologies.aisearch.multilevel.solvers.AntColonySolver
 
 fun main2(args: Array<String>) {
-    val rootLevel = TextParser.parseFile("testfiles/1.txt")
+    val rootLevel = TextParser.parseFile("testfiles/10.txt")
     //val solver = SimulatedAnnealingSolver(70.0, 1.0, 2.0, 1000, 1000000)
-    val solver = AntColonySolver(5, 2.0, 2.0, 0.2f, 0.6f, 1f, 0f, 5, 0)
+    val solver = AntColonySolver(10 * 1000 * 1000, 2.0, 2.0, 0.2f, 0.6f, 1f, 0f, 10, 0)
     val grouper = SimpleGrouper()
     //val grouper = EnergeticGrouper(3f, 15)
     val matrix = Matrix(solver, grouper)
     matrix.setRootLevel(rootLevel)
-    val startTime = System.nanoTime()
     matrix.createAllLevels()
+    val startTime = System.nanoTime()
     val path = matrix.solve()
     val endTime = System.nanoTime()
     println(path)

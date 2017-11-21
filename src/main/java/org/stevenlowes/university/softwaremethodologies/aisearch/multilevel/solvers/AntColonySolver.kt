@@ -259,16 +259,20 @@ private class DesirabilityArray(val distances: DistanceArray,
      */
     fun moveFrom(current: Int, absoluteOptions: List<Int>): Int {
         val abstractOptions = absoluteOptions.map { getActual(it, current) }.sorted()
-        val abstractX = if (abstractOptions.map {
-            desirabilityArray.get(it,
-                                  current)
-        }.contains(Float.POSITIVE_INFINITY)) {
-            infinityRandom(current, abstractOptions)
+        val infiniteOptions = absoluteOptions.filter { desirabilityArray.get(getActual(it, current), current ) == Float.POSITIVE_INFINITY }
+
+        val response = if(infiniteOptions.isEmpty()) {
+            val abstractX = weightedRandom(current, abstractOptions)
+            getActual(abstractX, current)
         }
         else {
-            weightedRandom(current, abstractOptions)
+            infinityRandom(current, infiniteOptions)
         }
-        return getActual(abstractX, current)
+
+        if(response !in absoluteOptions){
+            println("here")
+        }
+        return response
     }
 
     companion object {
@@ -280,7 +284,6 @@ private class DesirabilityArray(val distances: DistanceArray,
             return abstractOptions.first()
         }
 
-        val size = desirabilityArray.size
         var total = 0f
         for (x in abstractOptions) {
             val value = desirabilityArray.get(x, y)
@@ -305,13 +308,7 @@ private class DesirabilityArray(val distances: DistanceArray,
         return abstractOptions.last()
     }
 
-    fun infinityRandom(y: Int, options: List<Int>): Int {
-        val infiniteOptions = desirabilityArray.getRow(y).withIndex().filter {
-            (it.value == Float.POSITIVE_INFINITY) &&
-                    (it.index != y) &&
-                    (it.index in options)
-        }.map { it.index }
-
+    fun infinityRandom(y: Int, infiniteOptions: List<Int>): Int {
         return pheremones.weightedRandom(y, infiniteOptions)
     }
 }

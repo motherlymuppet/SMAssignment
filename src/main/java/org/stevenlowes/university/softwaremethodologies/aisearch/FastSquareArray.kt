@@ -40,6 +40,10 @@ open class FastSquareArray(val size: Int, val initialiser: (Int, Int) -> Float) 
     }
 
     fun weightedRandom(y: Int, options: List<Int>): Int {
+        if(options.isEmpty()){
+            println("Here")
+        }
+
         if(options.size == 1){
             return options.first()
         }
