@@ -84,13 +84,23 @@
 \subsection{Description}
 Simulated annealing is similar to a hill climbing algorithm, except it will occasionally move down the hill. The chance of doing so decreases as the algorithm nears completion.
 
-Start Temp
+\subsection{Start Temp}
+When the Start Temperature is too high, the simulation will frequently jump to worse states in the beginning. This means that the algorithm does not even begin to converge until it is a significant way through. To set the start temperature, i ran the algorithm with a very high start temperature, roughly 100,000. I set the algorithm to print out its progress while running, and noted that it appeared to begin to converge around 50 temperature. Knowing this, I experimented with different start temperatures, looking at the results. I found that approximately 70 start temperature was the lowest I could go without adversely affecting the results.
 
-End Temp
+\subsection{End Temp}
+When the End Temperature is very low, the algorithm will spend a long time in a local minima, looking for a better result without ever jumping to a worse result. I set a very low end temperature, around 0.00001, and watched its progress. It was clear that below approximately 1 temperature, the algorithm was no longer improving its guess. Again, I experimented with a few different End Temperatures and found that a value of 1 was the best.
 
-Multithreading
+\subsection{Multithreading}
+Multithreading was implemented into my Simulated Annealing Algorithm. However, I never found a way to make it viable as a way to improve speed while keeping the results of equal quality. The way that I implemented multithreading was to run the simulation in `stages'. Each stage ran the same as the normal simulation, but with the number of steps split between the threads. The stage was run simulatenously on multiple threads. After $x$ steps were complete, the best result found from any of the stages was taken as the new best result, and the temperature updated.
 
-Cooling Rate
+This meant that if $x$ was set too high, then the simulation would be very coarse. If it was set too low, then there would be a very large overhead from creating and destroying new threads. I was not able to find a value in the middle which sped up computation while keeping results of the same quality, or even close. It was quicker just to run the simulation on a single thread but with a quicker cooling rate, and you get results that are equally bad.
+
+On simulations which take weeks, it would probably make sense to enable this method of multithreading. You could set a very high $x$ value, and still get good results. This is becuase the overhead of generating the threads reduces as $x$ increases, but the negative effects on the results is proportional to $steps/x$.
+
+The curve is much less smooth. Try implementing multithreading by just running whole algorithm multiple times simulataneously and taking best result - compare that to increasing the number of steps 16x. Increasing number of steps is much better. The way it's implemented here is kinda like that but not as bad.
+
+\subsection{Cooling Rate}
+The cooling rate can be changed via a parameter. The cooling rate is equal to $1-f$ where $f$ is the factor by which the temperature is multiplied by after each iteration. High cooling rates means that the simulation runs quicker but more coarsely, producing worse results. Conversely, low cooling rate means that the simulation takes more time, but produces better results.
 	
 	\section{Algorithm B: Ant Colony Optimisation}
 	
@@ -118,16 +128,29 @@ Cooling Rate
 \subsection{Description}
 Ant Colony Optimisation simulates a number of ants moving around the graph. At each junction the ant chooses an edge to travel down using a weighted random selection. The weights for each edge are based on the amount of `pheremones' on that edge and the edge's length. Shorter edges are more desirable, as are edges with more pheremones. After each iteration, all ants deposit pheremones on the paths they travelled down. Pheremones then evaporate, with the pheremones on each edge being multiplied by a constant factor.
 
-Desirability
+\subsection{Desirability}
 \begin{equation}
 Desirability = Pheremones^{2}*Length^{-2}
 \end{equation}
 
-Elite Ant
+\subsection{Elite Ant}
+In each iteration, the best all-time ant was added to the ants to be processed. This means that the best all-time path has pheremones deposited onto it after each iteration, even if none of the generated ants chose that path.
 
-Multithreading
+\subsection{Multithreading}
+Implementing multithreading into the ant colony optimisation was very easy and does not reduce the quality of the results whatsoever. When generating the ant population, simply create multiple threads and ask each thread to create a portion of the ants. We then combine the generated lists and process the ants in a single-threaded manner. This works due to the fact that the during the generation of the ants, the shared resources are processed in an entirely read-only fashion. It is not necessary to run the ant processing in parallel because it is a small fraction of the total computation performed. The processing step could be run in parallel in future but this will be more difficult to implement due to shared resources being mutated.
 
-Culling
+\subsection{Culling}
+I attempted to improve performance of the ant colony optimisation by culling edges with sufficiently low desirability. This would mean that culled edges did not need to be considered when performing the weighted random selection. However, there was not a happy medium between having the culling happen to early (and therefore reduce the quality of the results) and having it happen too late (by which point the algorithm had already converged and we could have just ended it immediately).
 
-Fast array
+\subsection{Termination Criteria}
+We terminate after no improvement for $x$ iterations. This is set at 10. It's rare that after 10 iterations with no improvement that you will suddenly see improvement - what tends to happen is just that all the ants converge onto the current best path and stay there.
+
+\section{General}
+\subsection{Fast Triangular Array}
+The original way that I stored the matrix was using a HashMap of unordered pairs. This was horiffically slow. Accessing the length of an edge meant creating a new object, hashing it, then retrieving that from the hashtable. I moved to a much faster method, using a contiguous block of memory. I created an array of $size=nodes^2$. When requesting position $(x,y)$, it retrieved position $x_2 \times nodes + y_2$ where $x_2$ was $min(x,y)$ and $y_2$ was $max(x,y)$. This reflects the directionless nature of the graph.
+
+\subsection{Grouping}
+If we group nodes that are close to each other into groups, we can treat each group as a node in a new network. From here, we can solve the new network, and then solve each group. This can be done recursively --- we can have groups of groups of groups etc.
+
+\subsection{}
 	\end{document}
