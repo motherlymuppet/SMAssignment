@@ -12,7 +12,6 @@
 \usepackage[sectionbib, tocbib, numberedbib, bibnewpage]{apacite}%Citations
 \usepackage{tikz}
 \usepackage{pdflscape}
-\usepackage[margin=0.5in]{geometry}
 \usepackage{tabu}
 \usepackage{pgfplots}
 
@@ -82,7 +81,16 @@
 		\end{tikzpicture}
 	\end{center}
 
-	
+\subsection{Description}
+Simulated annealing is similar to a hill climbing algorithm, except it will occasionally move down the hill. The chance of doing so decreases as the algorithm nears completion.
+
+Start Temp
+
+End Temp
+
+Multithreading
+
+Cooling Rate
 	
 	\section{Algorithm B: Ant Colony Optimisation}
 	
@@ -106,13 +114,20 @@
 			535 & 50,124 & 11m16s\\
 		\end{tabu}
 	\end{center}
-	
-	\section{Comparison}
-	
-	\newpage
 
-		\begin{multicols}{2}
-			%\bibliography{bib}
-		\end{multicols}
-    
+\subsection{Description}
+Ant Colony Optimisation simulates a number of ants moving around the graph. At each junction the ant chooses an edge to travel down using a weighted random selection. The weights for each edge are based on the amount of `pheremones' on that edge and the edge's length. Shorter edges are more desirable, as are edges with more pheremones. After each iteration, all ants deposit pheremones on the paths they travelled down. Pheremones then evaporate, with the pheremones on each edge being multiplied by a constant factor.
+
+Desirability
+\begin{equation}
+Desirability = Pheremones^{2}*Length^{-2}
+\end{equation}
+
+Elite Ant
+
+Multithreading
+
+Culling
+
+Fast array
 	\end{document}
