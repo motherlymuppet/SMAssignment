@@ -14,6 +14,7 @@
 \usepackage{pdflscape}
 \usepackage[margin=0.5in]{geometry}
 \usepackage{tabu}
+\usepackage{pgfplots}
 
 \bibliographystyle{apacite}
 
@@ -34,7 +35,7 @@
 	\begin{center}
 		\rowcolors{0}{gray!25}{white}
 		\begin{tabu}{|c c c|}
-			\textbf{Nodes} & \textbf{Tour Length} & \textbf{Time to Compute (s)}\\
+			\textbf{Nodes} & \textbf{Tour Length} & \textbf{Runtime (s)}\\
 			12 & 56.0 & 0.11s \\
 			17 & 1,514 & 2.42s\\
 			21 & 2,716 & 2.46s\\
@@ -48,18 +49,40 @@
 		\end{tabu}
 	\end{center}
 
-\begin{center}
-	\rowcolors{0}{gray!25}{white}
-	\begin{tabu}{|c c c|}
-		\textbf{Iterations (m)} & \textbf{Tour Length} & \textbf{Time to Compute (s)}\\
-		6.6 & 55,111 & 1.99s\\
-		33 & 53,643 & 8.40s\\
-		99 & 52,678 & 23.2s\\
-		331 & 50,928 & 1m15s\\
-		893 & 50,301 & 3m25s\\
-		2,648 & 50,191 & 13m23s \\
-	\end{tabu}
-\end{center}
+	\begin{center}
+		\rowcolors{0}{gray!25}{white}
+		\begin{tabu}{|c c c|}
+			\textbf{Iterations (m)} & \textbf{Tour Length} & \textbf{Runtime (s)}\\
+			6.6 & 55,111 & 1.99s\\
+			33 & 53,643 & 8.40s\\
+			99 & 52,678 & 23.2s\\
+			331 & 50,928 & 1m15s\\
+			893 & 50,301 & 3m25s\\
+			2,648 & 50,191 & 13m23s \\
+		\end{tabu}
+	\end{center}
+
+	\begin{center}
+		\begin{tikzpicture}
+			\begin{axis}[
+			title = Effects of allowing extra computation time,
+			xlabel = {Computation Time (s)},
+			ylabel = {Tour Distance (1000)},
+			xmode=log,
+			]
+				\addplot coordinates {
+				(1.99,55.111)
+				(8.40,53.643)
+				(23.2,52.678)
+				(75,50.928)
+				(205,50.301)
+				(803,50.191)
+			};
+			\end{axis}
+		\end{tikzpicture}
+	\end{center}
+
+	
 	
 	\section{Algorithm B: Ant Colony Optimisation}
 	
@@ -68,7 +91,7 @@
 	\begin{center}
 		\rowcolors{0}{gray!25}{white}
 		\begin{tabu}{|c c c|}
-			\textbf{Nodes} & \textbf{Tour Length} & \textbf{Time to Compute (s)}\\
+			\textbf{Nodes} & \textbf{Tour Length} & \textbf{Runtime (s)}\\
 			12 & 56.0 & 0.60s \\
 			17 & 1,444 & 1.02s\\
 			21 & 2,549 & 1.28s\\
