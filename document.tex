@@ -84,6 +84,12 @@
 \subsection{Description}
 Simulated annealing is similar to a hill climbing algorithm, except it will occasionally move down the hill. The chance of doing so decreases as the algorithm nears completion.
 
+Each potential next state is selected with chance:
+
+\begin{equation}
+	e^{-(newValue - currentValue) / temperature}
+\end{equation}
+
 \subsection{Start Temp}
 When the Start Temperature is too high, the simulation will frequently jump to worse states in the beginning. This means that the algorithm does not even begin to converge until it is a significant way through. To set the start temperature, i ran the algorithm with a very high start temperature, roughly 100,000. I set the algorithm to print out its progress while running, and noted that it appeared to begin to converge around 50 temperature. Knowing this, I experimented with different start temperatures, looking at the results. I found that approximately 70 start temperature was the lowest I could go without adversely affecting the results.
 
@@ -151,6 +157,4 @@ The original way that I stored the matrix was using a HashMap of unordered pairs
 
 \subsection{Grouping}
 If we group nodes that are close to each other into groups, we can treat each group as a node in a new network. From here, we can solve the new network, and then solve each group. This can be done recursively --- we can have groups of groups of groups etc.
-
-\subsection{}
 	\end{document}
