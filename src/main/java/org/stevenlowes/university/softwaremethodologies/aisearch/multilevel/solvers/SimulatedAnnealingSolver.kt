@@ -6,7 +6,7 @@ import java.util.*
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
 
-class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val pow: Double, val mult: Int, val const: Int) : Solver {
+class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val pow: Double, val mult: Int, val const: Int, val stepsPerThreadIteration: Int) : Solver {
     private val random = Random()
 
     override fun bestPath(nodes: Collection<Node>): List<Node> {
@@ -15,7 +15,7 @@ class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val p
         if (startState.size > 1) {
             val steps = Math.pow(startState.size.toDouble(), pow).toLong() * mult + const
 
-            if(steps > 20 * 1000 * 1000){
+            if(steps > 1000 * 1000 * 1000){
                 //Multithreading
                 val cpus = Runtime.getRuntime().availableProcessors()
                 val newSteps = steps/cpus
@@ -27,7 +27,7 @@ class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val p
                 var temp = startTemp
                 val tempFactor = Math.pow(endTemp/startTemp, 1.0/newSteps)
                 val config = Config(this, temp, tempFactor, startState)
-                val callables = (1..cpus).map { SolverCallable(config) }
+                val callables = (1..cpus).map { SolverCallable(stepsPerThreadIteration, config) }
                 var stage = 1
                 while(temp > endTemp){
                     println("Stage $stage. Current Temp $temp. End temp $endTemp")
@@ -36,7 +36,7 @@ class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val p
                     val futures = callables.map { executor.submit(it) }
                     val answers = futures.map { it.get() }
                     val best = answers.minBy { Path(it).distance }!!
-                    temp *= Math.pow(tempFactor, (1000 * 1000).toDouble())
+                    temp *= Math.pow(tempFactor, stepsPerThreadIteration.toDouble())
                     currentState = best
                     config.temp = temp
                     config.nodes = currentState
@@ -53,13 +53,13 @@ class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val p
         }
     }
 
-    private fun singleThreadedMillionSteps(currentTemp: Double, tempFactor: Double, nodes: List<Node>): List<Node>{
+    private fun singleThreadedTenKSteps(steps: Int, currentTemp: Double, tempFactor: Double, nodes: List<Node>): List<Node>{
         val currentState = nodes.toMutableList()
         var temp = currentTemp
 
         var currentValue = evaluate(currentState)
 
-        for(i in 1..(1000*1000)){
+        for(i in 1..steps){
             val swapIndices = getSwapIndices(currentState)
             val valueDelta = evaluateSwap(currentState, swapIndices)
 
@@ -179,9 +179,9 @@ class SimulatedAnnealingSolver(val startTemp: Double, val endTemp: Double, val p
         list[indices.second] = storage
     }
 
-    private class SolverCallable(val config: Config): Callable<List<Node>>{
+    private class SolverCallable(val steps: Int, val config: Config): Callable<List<Node>>{
         override fun call(): List<Node> {
-            return config.solver.singleThreadedMillionSteps(config.temp, config.tempFactor, config.nodes)
+            return config.solver.singleThreadedTenKSteps(steps, config.temp, config.tempFactor, config.nodes)
         }
     }
 

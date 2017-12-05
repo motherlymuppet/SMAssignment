@@ -30,12 +30,45 @@
 	\section{Algorithm A: Simulated Annealing}
 	
 	\subsection{Results}
-	\label{useCase:socialRespond}
+	\label{useCase:annealResults}
 	\begin{center}
 		\rowcolors{0}{gray!25}{white}
 		\begin{tabu}{|c c c|}
 			\textbf{Nodes} & \textbf{Tour Length} & \textbf{Time to Compute (s)}\\
-			
+			12 & 56.0 & 0.11s \\
+			17 & 1,514 & 2.42s\\
+			21 & 2,716 & 2.46s\\
+			26 & 1,487 & 9.08s\\
+			42 & 1,217 & 9.64s\\
+			48 & 14,846 & 14.66s\\
+			58 & 26,740 & 13.95s\\
+			175 & 21,613 & 2m10s\\
+			180 & 2,720 & 2m16s\\
+			535 & 50,191 & 13m23s\\
+		\end{tabu}
+	\end{center}
+
+\begin{center}
+	\rowcolors{0}{gray!25}{white}
+	\begin{tabu}{|c c c|}
+		\textbf{Iterations (m)} & \textbf{Tour Length} & \textbf{Time to Compute (s)}\\
+		6.6 & 55,111 & 1.99s\\
+		33 & 53,643 & 8.40s\\
+		99 & 52,678 & 23.2s\\
+		331 & 50,928 & 1m15s\\
+		893 & 50,301 & 3m25s\\
+		2,648 & 50,191 & 13m23s \\
+	\end{tabu}
+\end{center}
+	
+	\section{Algorithm B: Ant Colony Optimisation}
+	
+		\subsection{Results}
+	\label{useCase:antResults}
+	\begin{center}
+		\rowcolors{0}{gray!25}{white}
+		\begin{tabu}{|c c c|}
+			\textbf{Nodes} & \textbf{Tour Length} & \textbf{Time to Compute (s)}\\
 			12 & 56.0 & 0.60s \\
 			17 & 1,444 & 1.02s\\
 			21 & 2,549 & 1.28s\\
@@ -50,8 +83,6 @@
 			535 & 50,124 & 11m16s\\
 		\end{tabu}
 	\end{center}
-	
-	\section{Algorithm B: Ant Colony Optimisation}
 	
 	\section{Comparison}
 	
