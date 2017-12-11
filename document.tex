@@ -34,7 +34,7 @@
 	\begin{center}
 		\rowcolors{0}{gray!25}{white}
 		\begin{tabu}{|c c c|}
-			\textbf{Nodes} & \textbf{Tour Length} & \textbf{Runtime (s)}\\
+			\textbf{Nodes} & \textbf{Tour Length} & \textbf{Runtime}\\
 			12 & 56.0 & 0.11s \\
 			17 & 1,514 & 2.42s\\
 			21 & 2,716 & 2.46s\\
@@ -51,7 +51,7 @@
 	\begin{center}
 		\rowcolors{0}{gray!25}{white}
 		\begin{tabu}{|c c c|}
-			\textbf{Iterations (m)} & \textbf{Tour Length} & \textbf{Runtime (s)}\\
+			\textbf{Iterations (m)} & \textbf{Tour Length} & \textbf{Runtime}\\
 			6.6 & 55,111 & 1.99s\\
 			33 & 53,643 & 8.40s\\
 			99 & 52,678 & 23.2s\\
@@ -131,6 +131,32 @@ The cooling rate can be changed via a parameter. The cooling rate is equal to $1
 		\end{tabu}
 	\end{center}
 
+	\begin{center}
+		No Improvement after 100 iterations = convergence
+		
+		Iterations = 112 means that the best path was discovered on iteration 12
+		
+		\rowcolors{0}{gray!25}{white}
+		\begin{tabu}{|c c c c|}
+			\textbf{Ants} & \textbf{Iterations to Converge} & \textbf{Runtime} & \textbf{Tour Length}\\
+			1 & 822 & 14.3s & 77,724\\
+			2 & 1015 & 21.2s & 69,213\\
+			4 & 905 & 26.2s & 63,728\\
+			8 & 410 & 18.3s & 62,443\\
+			16 & 429 & 34.9s & 59,890\\
+			32 & 372 & 60.8s & 58,620 \\
+			64 & 315 & 1m17s & 58,031 \\
+			128 & 364 & 2m55s & 57,445 \\
+			256 & 167 & 2m56s & 56,773 \\
+			512 & 110 & 34.11s & 55,426 \\
+			1,024 & 112 & 1m10s & 53,729 \\
+			2,048 & 106 & 2m20s & 52,571 \\
+			4,096 & 106 & 4m36s & 51,674 \\
+			8,192 & 104 & 8m40s & 51,197 \\
+			16,384 & 104 & 15m52s & 50,709 \\
+		\end{tabu}
+	\end{center}
+
 \subsection{Description}
 Ant Colony Optimisation simulates a number of ants moving around the graph. At each junction the ant chooses an edge to travel down using a weighted random selection. The weights for each edge are based on the amount of `pheremones' on that edge and the edge's length. Shorter edges are more desirable, as are edges with more pheremones. After each iteration, all ants deposit pheremones on the paths they travelled down. Pheremones then evaporate, with the pheremones on each edge being multiplied by a constant factor.
 
@@ -142,18 +168,68 @@ Desirability = Pheremones^{2}*Length^{-2}
 \subsection{Elite Ant}
 In each iteration, the best all-time ant was added to the ants to be processed. This means that the best all-time path has pheremones deposited onto it after each iteration, even if none of the generated ants chose that path.
 
+\begin{center}
+	Elite Ant
+	
+	\rowcolors{0}{gray!25}{white}
+	\begin{tabu}{|c c c c c|}
+		\textbf{Ants} & \textbf{Iterations (With)} & \textbf{Iterations (W/O)} & \textbf{Length(With)} & \textbf{Length (W/O)}\\
+		2 & 839 & 1184 & 68,531 & 69,758 \\
+		4 & 565 & 784 & 64,445 & 64,362 \\
+		8 & 474 & 505 & 61,375 & 61,137 \\
+		16 & 444 & 505 & 59,612 & 59,553 \\
+		32 & 310 & 397 & 58,710 & 58,582 \\
+		64 & 111 & 221 & 58,401 & 57,755 \\
+		128 & 250 & 219 & 56,159 & 57,615 \\
+	\end{tabu}
+\end{center}
+
+The algorithm with the Elite Ant consistently outperforms the algorithm without the Elite Ant, albeit marginally. The Elite Ant algorithm ranges from slightly faster to much faster, and from slightly worse to slightly better in terms of tour length.
+
 \subsection{Multithreading}
 Implementing multithreading into the ant colony optimisation was very easy and does not reduce the quality of the results whatsoever. When generating the ant population, simply create multiple threads and ask each thread to create a portion of the ants. We then combine the generated lists and process the ants in a single-threaded manner. This works due to the fact that the during the generation of the ants, the shared resources are processed in an entirely read-only fashion. It is not necessary to run the ant processing in parallel because it is a small fraction of the total computation performed. The processing step could be run in parallel in future but this will be more difficult to implement due to shared resources being mutated.
+
+\begin{center}
+	Normalised so that ST and MT assume same amount of iterations
+	
+	\rowcolors{0}{gray!25}{white}
+	\begin{tabu}{|c c c|}
+		\textbf{Ants} & \textbf{Runtime (Single Thread)} & \textbf{Runtime (Multithread)}\\
+		16 & 34.9s & 11.4s\\
+		32 & 60.8s & 12.2s\\
+		64 & 1m17s & 16.6s\\
+		128 & 2m55s & 39.7s\\
+		256 & 2m57s & 26.1s\\
+		512 & 3m36s & 38.3s \\
+		1,024 & 6m49s & 1m8s \\
+		2,048 & 13m22s & 2m8s \\
+	\end{tabu}
+\end{center}
 
 \subsection{Culling}
 I attempted to improve performance of the ant colony optimisation by culling edges with sufficiently low desirability. This would mean that culled edges did not need to be considered when performing the weighted random selection. However, there was not a happy medium between having the culling happen to early (and therefore reduce the quality of the results) and having it happen too late (by which point the algorithm had already converged and we could have just ended it immediately).
 
+\begin{center}
+	\rowcolors{0}{gray!25}{white}
+	\begin{tabu}{|c c c|}
+		\textbf{Culling Rate (\% of remaining edges per iteration)} & \textbf{Iterations} & \textbf{Tour Length}\\
+		0 & 163 & 57,154\\
+		0.1 & 144 & 57,700\\
+		0.5 & 69 & 59,838 \\
+		1 & 35 & 62,910\\
+		5 & 9 & 76,6992\\
+		10 & 4 & 84,099\\
+	\end{tabu}
+\end{center}
+
 \subsection{Termination Criteria}
 We terminate after no improvement for $x$ iterations. This is set at 10. It's rare that after 10 iterations with no improvement that you will suddenly see improvement - what tends to happen is just that all the ants converge onto the current best path and stay there.
 
+With more ants we tend to converge within less than 10 steps. With fewer ants we need to increase the number because it can 50+ iterations to see any improvement.
+
 \section{General}
 \subsection{Fast Triangular Array}
-The original way that I stored the matrix was using a HashMap of unordered pairs. This was horiffically slow. Accessing the length of an edge meant creating a new object, hashing it, then retrieving that from the hashtable. I moved to a much faster method, using a contiguous block of memory. I created an array of $size=nodes^2$. When requesting position $(x,y)$, it retrieved position $x_2 \times nodes + y_2$ where $x_2$ was $min(x,y)$ and $y_2$ was $max(x,y)$. This reflects the directionless nature of the graph.
+The original way that I stored the matrix was using a HashMap of unordered pairs. This was horrifically slow. Accessing the length of an edge meant creating a new object, hashing it, then retrieving that from the hashtable. I moved to a much faster method, using a contiguous block of memory. I created an array of $size=nodes^2$. When requesting position $(x,y)$, it retrieved position $x_2 \times nodes + y_2$ where $x_2$ was $min(x,y)$ and $y_2$ was $max(x,y)$. This reflects the directionless nature of the graph.
 
 \subsection{Grouping}
 If we group nodes that are close to each other into groups, we can treat each group as a node in a new network. From here, we can solve the new network, and then solve each group. This can be done recursively --- we can have groups of groups of groups etc.
