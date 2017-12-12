@@ -58,11 +58,7 @@
 	\subsection{Description}
 	Simulated annealing is similar to a hill climbing algorithm, except it will occasionally move down the hill. The chance of doing so decreases as the algorithm nears completion.
 	
-	Each potential next state is selected with chance:
-	
-	\begin{equation}
-		e^{-(newValue - currentValue) / temperature}
-	\end{equation}
+	Each potential next state is selected with chance $e^{-(newValue - currentValue) / temperature}$
 	
 	\subsection{Start Temp}
 	When the Start Temperature is too high, the simulation will frequently jump to worse states in the beginning. This means that the algorithm does not even begin to converge until it is a significant way through. To set the start temperature, i ran the algorithm with a very high start temperature, roughly 100,000. I set the algorithm to print out its progress while running, and noted that it appeared to begin to converge around 50 temperature. Knowing this, I experimented with different start temperatures, looking at the results. I found that approximately 70 start temperature was the lowest I could go without adversely affecting the results.
