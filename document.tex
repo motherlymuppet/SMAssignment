@@ -330,15 +330,15 @@
 	\draw [loosely dashed] (v5) edge (v3);
 	\draw [loosely dashed] (v9) edge (v3);
 	\draw [loosely dashed] (v6) edge (v9);
-	\draw (-8.25,-16.1) ellipse (1.4 and 1.85);
-	\draw (-6.25,-12.5) ellipse (1.7 and 0.8);
-	\draw (-3,-14.5) ellipse (1.4 and 2);
-	\draw (-5.6,-15.45) ellipse (1.25 and 2);
+	\draw (-8.25,-16.1) node (v21) {} ellipse (1.4 and 1.85);
+	\draw (-6.25,-12.5) node (v22) {} ellipse (1.7 and 0.8);
+	\draw (-3,-14.5) node (v24) {} ellipse (1.4 and 2);
+	\draw (-5.6,-15.45) node (v23) {} ellipse (1.25 and 2);
 	
-	\node (v13) at (-8,-10.5) {};
-	\node (v14) at (-5,-10) {};
-	\node (v16) at (-2.5,-9) {};
-	\node (v15) at (-6,-7) {};
+	\node (v13) at (-8.25,-10.5) {};
+	\node (v14) at (-5.5,-10) {};
+	\node (v16) at (-3,-9) {};
+	\node (v15) at (-6.25,-7) {};
 	
 	\draw  (v13) [fill=black] ellipse (0.1 and 0.1);
 	\draw  (v14) [fill=black] ellipse (0.1 and 0.1);
@@ -349,11 +349,10 @@
 	\draw [loosely dashed] (v14) edge (v15);
 	\draw [loosely dashed] (v16) edge (v15);
 	\draw [loosely dashed] (v14) edge (v16);
-	\node (v17) at (-10,-11) {};
-	\node (v18) at (-1,-11) {};
-	\node (v20) at (-10,-18.5) {};
-	\node (v19) at (-1,-18.5) {};
-	\draw  (v17) edge (v18);
-	\draw  (v19) edge (v20);
+	
+	\draw [->] (v21) edge (v13);
+	\draw [->] (v22) edge (v15);
+	\draw [->] (v23) edge (v14);
+	\draw [->] (v24) edge (v16);
 	\end{tikzpicture}
 \end{document}
