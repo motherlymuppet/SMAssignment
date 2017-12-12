@@ -233,4 +233,87 @@ The original way that I stored the matrix was using a HashMap of unordered pairs
 
 \subsection{Grouping}
 If we group nodes that are close to each other into groups, we can treat each group as a node in a new network. From here, we can solve the new network, and then solve each group. This can be done recursively --- we can have groups of groups of groups etc.
+
+This doesn't work well on the size of networks that we are dealing with. It would potentially have merit with very large networks, with millions or billions of nodes, where there is no chance of ever getting close to optimal. It also relies on the fact that the network is created in euclidean space, meaning that if nodes A and B are close to node C, and C is close to D, then the direct path from A and B to D is no longer than the path going through C.
+
+Talk about issues of finding which nodes are close together
+
+Talk about issues of generating new distances from gruped nodes.
+
+\begin{tikzpicture}
+\node (v4) at (-3.5,-20) {};
+\node (v5) at (-4,-21.5) {};
+\node (v7) at (-1.5,-21.5) {};
+\node (v8) at (-2,-19.5) {};
+\node (v6) at (-2.5,-22.5) {};
+\node (v2) at (-4.5,-19) {};
+\node (v11) at (-7,-21.5) {};
+\node (v9) at (-5,-23.5) {};
+\node (v3) at (-5.5,-20.5) {};
+\node (v1) at (-7,-19) {};
+\node (v10) at (-7.5,-24) {};
+\node (v12) at (-8.5,-21.5) {};
+\draw [loosely dashed] (v1) edge (v2);
+\draw [loosely dashed] (v2) edge (v3);
+\draw [loosely dashed] (v4) edge (v5);
+\draw [loosely dashed] (v4) edge (v6);
+\draw [loosely dashed] (v7) edge (v8);
+\draw [loosely dashed] (v7) edge (v4);
+\draw [loosely dashed] (v5) edge (v2);
+\draw [loosely dashed] (v4) edge (v2);
+\draw [loosely dashed] (v9) edge (v5);
+\draw [loosely dashed] (v10) edge (v11);
+\draw [loosely dashed] (v12) edge (v11);
+\draw [loosely dashed] (v11) edge (v3);
+\draw [loosely dashed] (v9) edge (v11);
+\draw [loosely dashed] (v6) edge (v7);
+\draw [loosely dashed] (v5) edge (v8);
+\draw [loosely dashed] (v5) edge (v3);
+\draw [loosely dashed] (v9) edge (v3);
+\draw [loosely dashed] (v6) edge (v9);
+
+\node (v4) at (-4,-11.5) {};
+\node (v5) at (-4.5,-13) {};
+\node (v7) at (-2,-13) {};
+\node (v8) at (-2.5,-11) {};
+\node (v6) at (-3,-14) {};
+\node (v2) at (-5,-10.5) {};
+\node (v11) at (-7.5,-13) {};
+\node (v9) at (-5.5,-15) {};
+\node (v3) at (-6,-12) {};
+\node (v1) at (-7.5,-10.5) {};
+\node (v10) at (-8,-15.5) {};
+\node (v12) at (-9,-13) {};
+\draw [loosely dashed] (v1) edge (v2);
+\draw [loosely dashed] (v2) edge (v3);
+\draw [loosely dashed] (v4) edge (v5);
+\draw [loosely dashed] (v4) edge (v6);
+\draw [loosely dashed] (v7) edge (v8);
+\draw [loosely dashed] (v7) edge (v4);
+\draw [loosely dashed] (v5) edge (v2);
+\draw [loosely dashed] (v4) edge (v2);
+\draw [loosely dashed] (v9) edge (v5);
+\draw [loosely dashed] (v10) edge (v11);
+\draw [loosely dashed] (v12) edge (v11);
+\draw [loosely dashed] (v11) edge (v3);
+\draw [loosely dashed] (v9) edge (v11);
+\draw [loosely dashed] (v6) edge (v7);
+\draw [loosely dashed] (v5) edge (v8);
+\draw [loosely dashed] (v5) edge (v3);
+\draw [loosely dashed] (v9) edge (v3);
+\draw [loosely dashed] (v6) edge (v9);
+\draw [very thick] (-8.5,-14) ellipse (2 and 2);
+\draw [very thick] (-6.5,-10.5) ellipse (2 and 1);
+\draw [very thick] (-3,-12.5) ellipse (1.5 and 2);
+\draw [very thick] (-5.5,-13.5) ellipse (1.5 and 2);
+
+\node (v13) at (-8.5,-7) {};
+\node (v14) at (-5.5,-6.5) {};
+\node (v16) at (-3,-5.5) {};
+\node (v15) at (-6.5,-3.5) {};
+\draw [loosely dashed] (v13) edge (v14);
+\draw [loosely dashed] (v14) edge (v15);
+\draw [loosely dashed] (v16) edge (v15);
+\draw [loosely dashed] (v14) edge (v16);
+\end{tikzpicture}
 	\end{document}
