@@ -17,8 +17,8 @@
 \usepackage[margin=0.5in]{geometry}
 
 \usepackage{comment}
-\excludecomment{figure}
-\let\endfigure\relax
+%\excludecomment{figure}
+%\let\endfigure\relax
 
 \pagenumbering{gobble}
 
@@ -36,24 +36,24 @@
 	
 	\subsection{Results}
 	\begin{figure}
-	\label{useCase:annealResults}
-	\begin{center}
-		\rowcolors{0}{gray!25}{white}
-		\begin{tabu}{|c c c|}
-			\textbf{Nodes} & \textbf{Tour Length} & \textbf{Runtime} \\
-			12 & 56.0 & 0.11s \\
-			17 & 1,514 & 2.42s \\
-			21 & 2,716 & 2.46s \\
-			26 & 1,487 & 9.08s \\
-			42 & 1,217 & 9.64s \\
-			48 & 14,846 & 14.66s \\
-			58 & 26,740 & 13.95s \\
-			175 & 21,613 & 2m10s \\
-			180 & 2,720 & 2m16s \\
-			535 & 50,191 & 13m23s \\
-		\end{tabu}
-	\end{center}
-\end{figure}
+		\label{useCase:annealResults}
+		\begin{center}
+			\rowcolors{0}{gray!25}{white}
+			\begin{tabu}{|c c|}
+				\textbf{Nodes} & \textbf{Tour Length} \\
+				12 & 56.0 \\
+				17 & 1,514 \\
+				21 & 2,668 \\
+				26 & 1,479 \\
+				42 & 1,217 \\
+				48 & 13,999 \\
+				58 & 26,740 \\
+				175 & 21,519 \\
+				180 & 2,540 \\
+				535 & 49,007 \\
+			\end{tabu}
+		\end{center}
+	\end{figure}
 	
 	\subsection{Description}
 	Simulated annealing is similar to a hill climbing algorithm, except it will occasionally move down the hill. The chance of doing so decreases as the algorithm nears completion.
@@ -61,67 +61,83 @@
 	Each potential next state is selected with chance $e^{-(newValue - currentValue) / temperature}$
 	
 	\subsection{Start Temp}
-	When the Start Temperature is too high, the simulation will frequently jump to worse states in the beginning. This means that the algorithm does not even begin to converge until it is a significant way through. To set the start temperature, i ran the algorithm with a very high start temperature, roughly 100,000. I set the algorithm to print out its progress while running, and noted that it appeared to begin to converge around 50 temperature. Knowing this, I experimented with different start temperatures, looking at the results. I found that approximately 70 start temperature was the lowest I could go without adversely affecting the results.
-	
-	
+	When the Start Temperature is too high, the simulation will frequently jump to worse states in the beginning. This means that the algorithm does not even begin to converge until it is a significant way through. To set the start temperature, i ran the algorithm with a very high start temperature, roughly 100,000. I set the algorithm to print out its progress while running, and noted that it appeared to begin to converge around 50 temperature. Knowing this, I experimented with different start temperatures, looking at the results. I found that approximately 80 start temperature was the lowest I could go without adversely affecting the results.	
+		
 	\begin{figure}
-	\begin{center}%TODO
-		Using an end temp of 0.01:
-		\rowcolors{0}{gray!25}{white}
-		\begin{tabu}{|c c c|}
-			\textbf{Start Temp} & \textbf{Tour Length} & \textbf{Runtime} \\
-			10,000 & 55,111 & 1.99s \\
-			5,000 & 53,643 & 8.40s \\
-			1,000 & 52,678 & 23.2s \\
-			500 & 50,928 & 1m15s \\
-			100 & 50,301 & 3m25s \\
-			75 & 50,191 & 13m23s \\
-			50&&\\
-			25&&\\
-			10&&\\
-			1&&\\
-		\end{tabu}
-	\end{center}
-\end{figure}
-	
-	\subsection{End Temp}
-	When the End Temperature is very low, the algorithm will spend a long time in a local minima, looking for a better result without ever jumping to a worse result. I set a very low end temperature, around 0.00001, and watched its progress. It was clear that below approximately 1 temperature, the algorithm was no longer improving its guess. Again, I experimented with a few different End Temperatures and found that a value of 1 was the best.
-	
+		\begin{center}
+			Start Temp
+			Using an end temp of 0.01. Cooling rate was set so that number of steps was 1m, to exaggerate the impact of start Temps too high. Single-Threaded:
+			
+			\begin{tikzpicture}
+			\begin{axis}[
+			title = Effects of changing start temp,
+			xlabel = {Start Temp},
+			ylabel = {Tour Length (1000s)},
+			xmode=log,
+			log ticks with fixed point,
+			]
+			\addplot coordinates {
+				(50,64.876)
+				(60,64.528)
+				(70,63.954)
+				(80,63.490)
+				(90,63.512)
+				(100,63.501)
+				(250,63.841)
+				(500,63.986)
+				(1000,64.271)
+				(5000,64.701)
+			};
+			\end{axis}
+			\end{tikzpicture}
+		\end{center}
+	\end{figure}
+
+
+\subsection{End Temp}
+When the End Temperature is very low, the algorithm will spend a long time in a local minima, looking for a better result without ever jumping to a worse result. I set a very low end temperature, around 0.00001, and watched its progress. It was clear that below approximately 1 temperature, the algorithm was no longer improving its guess. Again, I experimented with a few different End Temperatures and found that a value of 1 was the best.
+
 \begin{figure}
-	\begin{center}%TODO
-		Using a start temp of 10000:
-		\rowcolors{0}{gray!25}{white}
-		\begin{tabu}{|c c c|}
-			\textbf{End Temp} & \textbf{Tour Length} & \textbf{Runtime} \\
-			1,000 & 55,111 & 1.99s \\
-			500 & 53,643 & 8.40s \\
-			100 & 52,678 & 23.2s \\
-			50 & 50,928 & 1m15s \\
-			25 & 50,301 & 3m25s \\
-			10 & 50,191 & 13m23s \\
-			5&&\\
-			2.5&&\\
-			1&&\\
-			0.5&&\\
-			0.1&&\\
-			0.01&&\\
-			0.001&&\\
-		\end{tabu}
+	\begin{center}
+		End Temp
+		Using a start temp of 80. 1m Steps. Single Threaded.:
+		
+		\begin{tikzpicture}
+		\begin{axis}[
+		title = Effects of changing end temp,
+		xlabel = {End Temp},
+		ylabel = {Tour Length (1000s)},
+		xmode=log,
+		log ticks with fixed point,
+		]
+		\addplot coordinates {
+			(0.01,64.261)
+			(0.1,63.325)
+			(0.25,62.843)
+			(0.4,62.242)
+			(0.5,61.935)
+			(0.6,62.076)
+			(0.75,62.045)
+			(1,62.206)
+			(10,64.029)
+		};
+		\end{axis}
+		\end{tikzpicture}
 	\end{center}
 \end{figure}
-	
-	\subsection{Multithreading}
-	Multithreading was implemented into my Simulated Annealing Algorithm. However, I never found a way to make it viable as a way to improve speed while keeping the results of equal quality. The way that I implemented multithreading was to run the simulation in `stages'. Each stage ran the same as the normal simulation, but with the number of steps split between the threads. The stage was run simulatenously on multiple threads. After $x$ steps were complete, the best result found from any of the stages was taken as the new best result, and the temperature updated.
-	
-	This meant that if $x$ was set too high, then the simulation would be very coarse. If it was set too low, then there would be a very large overhead from creating and destroying new threads. I was not able to find a value in the middle which sped up computation while keeping results of the same quality, or even close. It was quicker just to run the simulation on a single thread but with a quicker cooling rate, and you get results that are equally bad.
-	
-	On simulations which take weeks, it would probably make sense to enable this method of multithreading. You could set a very high $x$ value, and still get good results. This is becuase the overhead of generating the threads reduces as $x$ increases, but the negative effects on the results is proportional to $steps/x$.
-	
-	You can show that this method is flawed through \emph{reductio ad absurdum}. Increase the number of steps between each sync to be equal to the $n/cpus$ where $n$ is the total number of steps. Essentially, this method must reduce the quality of results because the alternative is that running annealing 10 times and taking the best result is just as good as running it once with 10 times as many steps.
-	
-	\subsection{Cooling Rate}
-	The cooling rate can be changed via a parameter. The cooling rate is equal to $1-f$ where $f$ is the factor by which the temperature is multiplied by after each iteration. High cooling rates means that the simulation runs quicker but more coarsely, producing worse results. Conversely, low cooling rate means that the simulation takes more time, but produces better results. Runtime scales linearly with the number of steps.
-	
+
+\subsection{Multithreading}
+Multithreading was implemented into my Simulated Annealing Algorithm. However, I never found a way to make it viable as a way to improve speed while keeping the results of equal quality. The way that I implemented multithreading was to run the simulation in `stages'. Each stage ran the same as the normal simulation, but with the number of steps split between the threads. The stage was run simulatenously on multiple threads. After $x$ steps were complete, the best result found from any of the stages was taken as the new best result, and the temperature updated.
+
+This meant that if $x$ was set too high, then the simulation would be very coarse. If it was set too low, then there would be a very large overhead from creating and destroying new threads. I was not able to find a value in the middle which sped up computation while keeping results of the same quality, or even close. It was quicker just to run the simulation on a single thread but with a quicker cooling rate, and you get results that are equally bad.
+
+On simulations which take weeks, it would probably make sense to enable this method of multithreading. You could set a very high $x$ value, and still get good results. This is becuase the overhead of generating the threads reduces as $x$ increases, but the negative effects on the results is proportional to $steps/x$.
+
+You can show that this method is flawed through \emph{reductio ad absurdum}. Increase the number of steps between each sync to be equal to the $n/cpus$ where $n$ is the total number of steps. Essentially, this method must reduce the quality of results because the alternative is that running annealing 10 times and taking the best result is just as good as running it once with 10 times as many steps.
+
+\subsection{Cooling Rate}
+The cooling rate can be changed via a parameter. The cooling rate is equal to $1-f$ where $f$ is the factor by which the temperature is multiplied by after each iteration. High cooling rates means that the simulation runs quicker but more coarsely, producing worse results. Conversely, low cooling rate means that the simulation takes more time, but produces better results. Runtime scales linearly with the number of steps.
+
 \begin{figure}
 	\begin{center}
 		\rowcolors{0}{gray!25}{white}
@@ -145,6 +161,7 @@
 		xlabel = {Computation Time (s)},
 		ylabel = {Tour Distance (1000)},
 		xmode=log,
+		log ticks with fixed point,
 		]
 		\addplot coordinates {
 			(1.99,55.111)
@@ -163,28 +180,29 @@
 	\begin{center}
 		\begin{tikzpicture}
 		\begin{axis}[
-		title = Effects of allowing extra computation time,
-		xlabel = {Steps},
+		title = Linear time/steps,
+		xlabel = {Steps ($\times 1,000,000$)},
 		ylabel = {Computation Time (s)},
 		xmode=log,
 		ymode=log,
+		log ticks with fixed point,
 		]
 		\addplot coordinates {
-			(6600000,1.99)
-			(33000000,8.40)
-			(99000000,23.2)
-			(331000000,75)
-			(893000000,205)
-			(2648000000,803)
+			(6.6,1.99)
+			(33,8.40)
+			(99,23.2)
+			(331,75)
+			(893,205)
+			(2648,803)
 		};
 		\end{axis}
 		\end{tikzpicture}
 	\end{center}
 \end{figure}
-	
-	\section{Algorithm B: Ant Colony Optimisation}
-	
-	\subsection{Results}
+
+\section{Algorithm B: Ant Colony Optimisation}
+
+\subsection{Results}
 \begin{figure}
 	\label{useCase:antResults}
 	\begin{center}
@@ -206,8 +224,8 @@
 		\end{tabu}
 	\end{center}
 \end{figure}
-	
-	\begin{figure}
+
+\begin{figure}
 	\begin{center}
 		No Improvement after 100 iterations = convergence
 		
@@ -234,13 +252,13 @@
 		\end{tabu}
 	\end{center}
 \end{figure}
-	
-	\subsection{Description}
-	Ant Colony Optimisation simulates a number of ants moving around the graph. At each junction the ant chooses an edge to travel down using a weighted random selection. The weights for each edge are $Pheremones^{2}*Length^{-2}$. Shorter edges are more desirable, as are edges with more pheremones. After each iteration, all ants deposit pheremones on the paths they travelled down. Pheremones then evaporate, with the pheremones on each edge being multiplied by a constant factor.
-	
-	\subsection{Elite Ant}
-	In each iteration, the best all-time ant was added to the ants to be processed. This means that the best all-time path has pheremones deposited onto it after each iteration, even if none of the generated ants chose that path.
-	
+
+\subsection{Description}
+Ant Colony Optimisation simulates a number of ants moving around the graph. At each junction the ant chooses an edge to travel down using a weighted random selection. The weights for each edge are $Pheremones^{2}*Length^{-2}$. Shorter edges are more desirable, as are edges with more pheremones. After each iteration, all ants deposit pheremones on the paths they travelled down. Pheremones then evaporate, with the pheremones on each edge being multiplied by a constant factor.
+
+\subsection{Elite Ant}
+In each iteration, the best all-time ant was added to the ants to be processed. This means that the best all-time path has pheremones deposited onto it after each iteration, even if none of the generated ants chose that path.
+
 \begin{figure}
 	\begin{center}
 		Elite Ant
@@ -248,22 +266,22 @@
 		\rowcolors{0}{gray!25}{white}
 		\begin{tabu}{|c c c c c|}
 			\textbf{Ants} & \textbf{Iterations (With)} & \textbf{Iterations (W/O)} & \textbf{Length(With)} & \textbf{Length (W/O)} \\
-			 2 & 839 & 1184 & 68,531 & 69,758 \\
-			 4 & 565 & 784 & 64,445 & 64,362 \\
-			 8 & 474 & 505 & 61,375 & 61,137 \\
-			 16 & 444 & 505 & 59,612 & 59,553 \\
-			 32 & 310 & 397 & 58,710 & 58,582 \\
-			 64 & 111 & 221 & 58,401 & 57,755 \\
-			 128 & 250 & 219 & 56,159 & 57,615
+			2 & 839 & 1184 & 68,531 & 69,758 \\
+			4 & 565 & 784 & 64,445 & 64,362 \\
+			8 & 474 & 505 & 61,375 & 61,137 \\
+			16 & 444 & 505 & 59,612 & 59,553 \\
+			32 & 310 & 397 & 58,710 & 58,582 \\
+			64 & 111 & 221 & 58,401 & 57,755 \\
+			128 & 250 & 219 & 56,159 & 57,615
 		\end{tabu}
 	\end{center}
 \end{figure}
-	
-	The algorithm with the Elite Ant consistently outperforms the algorithm without the Elite Ant, albeit marginally. The Elite Ant algorithm ranges from slightly faster to much faster, and the tour lengths are well within the margin of error.
-	
-	\subsection{Multithreading}
-	Implementing multithreading into the ant colony optimisation was very easy and does not reduce the quality of the results whatsoever. When generating the ant population, simply create multiple threads and ask each thread to create a portion of the ants. We then combine the generated lists and process the ants in a single-threaded manner. This works due to the fact that the during the generation of the ants, the shared resources are processed in an entirely read-only fashion. It is not necessary to run the ant processing in parallel because it is a small fraction of the total computation performed. The processing step could be run in parallel in future but this will be more difficult to implement due to shared resources being mutated.
-	
+
+The algorithm with the Elite Ant consistently outperforms the algorithm without the Elite Ant, albeit marginally. The Elite Ant algorithm ranges from slightly faster to much faster, and the tour lengths are well within the margin of error.
+
+\subsection{Multithreading}
+Implementing multithreading into the ant colony optimisation was very easy and does not reduce the quality of the results whatsoever. When generating the ant population, simply create multiple threads and ask each thread to create a portion of the ants. We then combine the generated lists and process the ants in a single-threaded manner. This works due to the fact that the during the generation of the ants, the shared resources are processed in an entirely read-only fashion. It is not necessary to run the ant processing in parallel because it is a small fraction of the total computation performed. The processing step could be run in parallel in future but this will be more difficult to implement due to shared resources being mutated.
+
 \begin{figure}
 	\begin{center}
 		Normalised so that ST and MT assume same amount of iterations
@@ -282,10 +300,10 @@
 		\end{tabu}
 	\end{center}
 \end{figure}
-	
-	\subsection{Culling}
-	I attempted to improve performance of the ant colony optimisation by culling edges with sufficiently low desirability. This would mean that culled edges did not need to be considered when performing the weighted random selection. However, there was not a happy medium between having the culling happen to early (and therefore reduce the quality of the results) and having it happen too late (by which point the algorithm had already converged and we could have just ended it immediately).
-	
+
+\subsection{Culling}
+I attempted to improve performance of the ant colony optimisation by culling edges with sufficiently low desirability. This would mean that culled edges did not need to be considered when performing the weighted random selection. However, there was not a happy medium between having the culling happen to early (and therefore reduce the quality of the results) and having it happen too late (by which point the algorithm had already converged and we could have just ended it immediately).
+
 \begin{figure}
 	\begin{center}
 		\rowcolors{0}{gray!25}{white}
@@ -300,24 +318,67 @@
 		\end{tabu}
 	\end{center}
 \end{figure}
+
+\subsection{Termination Criteria}
+We terminate after no improvement for $x$ iterations. This is set at 10. It's rare that after 10 iterations with no improvement that you will suddenly see improvement - what tends to happen is just that all the ants converge onto the current best path and stay there.
+
+With more ants we tend to converge within less than 10 steps. With fewer ants we need to increase the number because it can 50+ iterations to see any improvement.
+
+\section{General}
+\subsection{Fast Triangular Array}
+The original way that I stored the matrix was using a HashMap of unordered pairs. This was horrifically slow. Accessing the length of an edge meant creating a new object, hashing it, then retrieving that from the hashtable. I moved to a much faster method, using a contiguous block of memory. I created an array of $size=nodes^2$. When requesting position $(x,y)$, it retrieved position $x_2 \times nodes + y_2$ where $x_2$ was $min(x,y)$ and $y_2$ was $max(x,y)$. This reflects the directionless nature of the graph.
+
+\subsection{Grouping}
+If we group nodes that are close to each other into groups, we can treat each group as a node in a new network. From here, we can solve the new network, and then solve each group. This can be done recursively --- we can have groups of groups of groups etc.
+
+Choosing how to group the nodes is the main challenge with this technique. The optimal grouping would minimise the sum of the optimal TSP tours for each group. However, this obviously isn't feasible as this brute force approach would take $n! \times n \times (n/m)!$ as opposed to just solving the original TSP which only takes $n! \times n$ (where $n$ is the number of nodes and $m$ is the number of groups). This problem is much easier if the network exists in euclidean space, meaning that if nodes A and B are close to node C, and C is close to D, then the direct path from A and B to D is no longer than the path going through C.
+
+When generating the new network from the graph, we need to generate edges and distances for those edges. It is difficult to know what value to use for the distances, as they need to accurately represent how difficult it is to move from one group to another.
+
+This grouping method can also be parallelised. Once the groups have been generated, each group can be solved in a separate thread, without affecting results whatsoever. This approach isn't optimised at all yet, and it wouldn't take much of an improvement in score for this to have a huge impact. Seeing that there is minimal improvement when you allocate more time to the simulated annealing section, it's possible that SA with grouping could do in 0.5s what straight SA could do in 30 seconds.
+
+Preliminary testing shows promise, with this approach giving almost constant tour length regardless of time allocated to the intra-group solving.
+
+\begin{figure}
+	\begin{center}
+		\begin{tikzpicture}
+		\begin{axis}[
+		title = Using Grouping or Not,
+		xlabel = {Computation Time(s)},
+		ylabel = {Tour Length (1000s)},
+		xmode=log,
+		ymode=log,
+		log ticks with fixed point,
+		]
+		\addplot coordinates { %Grouping
+			(0.075,63.388)
+			(0.168,61.811)
+			(0.216,61.256)
+			(0.41,60.815)
+			(0.57,61.262)
+			(0.65,61.684)
+			(0.97,60.731)
+			(1.469,60.966)
+			(2.894,60.176)
+			(5.759,61.638)
+			(7.394,60.822)
+			(10.46,61.147)
+			(12.88,60.624)
+		};
 	
-	\subsection{Termination Criteria}
-	We terminate after no improvement for $x$ iterations. This is set at 10. It's rare that after 10 iterations with no improvement that you will suddenly see improvement - what tends to happen is just that all the ants converge onto the current best path and stay there.
-	
-	With more ants we tend to converge within less than 10 steps. With fewer ants we need to increase the number because it can 50+ iterations to see any improvement.
-	
-	\section{General}
-	\subsection{Fast Triangular Array}
-	The original way that I stored the matrix was using a HashMap of unordered pairs. This was horrifically slow. Accessing the length of an edge meant creating a new object, hashing it, then retrieving that from the hashtable. I moved to a much faster method, using a contiguous block of memory. I created an array of $size=nodes^2$. When requesting position $(x,y)$, it retrieved position $x_2 \times nodes + y_2$ where $x_2$ was $min(x,y)$ and $y_2$ was $max(x,y)$. This reflects the directionless nature of the graph.
-	
-	\subsection{Grouping}
-	If we group nodes that are close to each other into groups, we can treat each group as a node in a new network. From here, we can solve the new network, and then solve each group. This can be done recursively --- we can have groups of groups of groups etc.
-	
-	This doesn't work well on the size of networks that we are dealing with. It would potentially have merit with very large networks, with millions or billions of nodes, where there is no chance of ever getting close to optimal. It also relies on the fact that the network is created in euclidean space, meaning that if nodes A and B are close to node C, and C is close to D, then the direct path from A and B to D is no longer than the path going through C.
-	
-	Choosing how to group the nodes is the main challenge with this technique. The optimal grouping would minimise the sum of the optimal TSP tours for each group. However, this obviously isn't feasible as this brute force approach would take $n! \times n \times (n/m)!$ as opposed to just solving the original TSP which only takes $n! \times n$ (where $n$ is the number of nodes and $m$ is the number of groups)
-	
-	When generating the new network from the graph, we need to generate edges and distances for those edges. It is difficult to know what value to use for the distances, as they need to accurately represent how difficult it is to move from one group to another.
+		\addplot coordinates { %Without
+			(0.078,91.704)
+			(0.174,71.522)
+			(0.26,68.402)
+			(0.316,65.884)
+			(0.462,62.2)
+			(2.89,55.733)
+			(12.11,52.753)
+		};
+		\end{axis}
+		\end{tikzpicture}
+	\end{center}
+\end{figure}
 
 \begin{figure}
 	\begin{tikzpicture}[rotate=180,scale=0.6]
