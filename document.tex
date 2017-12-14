@@ -14,7 +14,7 @@
 \usepackage{pdflscape}
 \usepackage{tabu}
 \usepackage{pgfplots}
-\usepackage[margin=0.5in]{geometry}
+\usepackage[margin=0.6in]{geometry}
 
 \usepackage{comment}
 %\excludecomment{figure}
@@ -35,16 +35,14 @@
 	\section{Algorithm A: Simulated Annealing}
 
 	\subsection{Description}
-	\begin{tabu}{X X[c]}
-		Simulated annealing is similar to a hill climbing algorithm, except it will occasionally move down the hill. The chance of doing so decreases as the algorithm nears completion.
-		
-		Each potential next state is selected with chance
+	\begin{tabu}{p{10cm} X[c]}
+		Simulated Annealing is similar to a hill climbing algorithm, except it will occasionally move down the hill. The chance of doing so decreases as the algorithm nears completion. The algorithm randomly selects a neighbouring state, and moves to that state with a chance of:
 		
 		\begin{equation}
 		e^{-(newValue - currentValue) / temperature}
 		\end{equation}
 		
-		Temperature is set with a parameter at the start of the algorithm, and decreases exponentially until it reaches the end temperature, also set by a parameter. The rate of decrease is set by another parameter, called cooling rate. After each step the temperature is multiplied by the cooling rate.
+		Temperature is set with a parameter at the start of the algorithm, and decreases exponentially until it reaches the end temperature, also set by a parameter. The rate of decrease is set by another parameter, called cooling rate.
 		&
 		\rowcolors{0}{gray!25}{white}
 		\begin{tabu}{|c c|}\hline
@@ -60,9 +58,6 @@
 			180 & 2,540 \\
 			535 & 49,007 \\\hline
 		\end{tabu}
-	
-		\vspace{6pt}
-		Simulated Annealing Results
 	\end{tabu}
 		
 	\subsection{Start/End Temp}
@@ -175,7 +170,7 @@ The cooling rate can be changed via a parameter. The cooling rate is equal to $1
 \section{Algorithm B: Ant Colony Optimisation}
 
 \subsection{Description}
-\begin{tabu}{X X[c]}
+\begin{tabu}{p{10cm} X[c]}
 	Ant Colony Optimisation simulates a number of ants moving around the graph. At each junction the ant chooses an edge to travel down using a weighted random selection. The weights for each edge are 
 	
 	\begin{equation}
@@ -198,9 +193,6 @@ The cooling rate can be changed via a parameter. The cooling rate is equal to $1
 		180 & 1,950 \\
 		535 & 50,124 \\\hline
 	\end{tabu}
-	
-	\vspace{6pt}
-	Ant Colony Results
 \end{tabu}
 
 \subsection{Elite Ant}
@@ -375,12 +367,12 @@ However, there was not a happy medium between having the culling happen to early
 \section{General}
 
 \subsection{Fast Triangular Array}
-The original way that I stored the matrix was using a HashMap of unordered pairs. This was incredibly slow. Accessing the length of an edge meant creating a new object, hashing it, then retrieving that from the hashtable. I change my approach, creating an array of $size=nodes^2$. When requesting position $(x,y)$, it retrieved position $x_2 \times nodes + y_2$ where $x_2$ was $min(x,y)$ and $y_2$ was $max(x,y)$. This reflects the graph's directionless nature.
+Originally, the matrix was stored using a HashMap of unordered pairs. This was incredibly slow. Accessing an edge's length meant creating a new object, hashing it, then retrieving that from the hashtable. I change my approach, creating an array of $size=nodes^2$. When requesting position $(x,y)$, it retrieved position $x_2 \times nodes + y_2$ where $x_2$ was $min(x,y)$ and $y_2$ was $max(x,y)$. This reflects the graph's directionless nature.
 
 \subsection{Grouping}
 \begin{tabu}{X[c] X[c]}
 	\begin{minipage}{\linewidth}
-By grouping nodes that are close to each other, we can break the TSP into multiple smaller TSPs. This can be done recursively, with multiple layers of grouping, using the groups of the layer underneath as the nodes of this layer, until the uppermost level contains only one node. We then solve the uppermost layer, which is trivial due to it containing only one node. We then repeatedly solve the group represented by each node in the tour, replacing it with the solution of the layer below. When all nodes in the tour are part of the bottom layer, we are finished.\\
+By grouping nodes that are near each other, we can break the TSP into multiple smaller TSPs. This can be done repeatedly, using the groups of the layer underneath as the nodes of this layer, until the uppermost level only contains one node. We then solve the top layer, which is trivial, followed by repeatedly solving the group represented by each node in the tour, replacing it with the solution of the layer below. When all nodes in the tour are part of the bottom layer, we are finished.\\
 
 The main challenges with this technique are how to group the nodes, and how to calculate the distances between nodes in the new network. Both of these problems are made much easier if the initial network exists in euclidean space. The method used involves iteratively building a group from a start node, where in each iteration we add the node with the lowest equivalent electrical resistance to the start node. The distances between nodes were calculated as the average distance between nodes in the two groups\\
 
