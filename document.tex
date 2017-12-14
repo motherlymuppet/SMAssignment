@@ -226,6 +226,7 @@ The algorithm with the Elite Ant consistently outperforms the algorithm without 
 		(64,150)
 		(128,201)
 	};
+	\addlegendentry{With Elite}
 	
 	\addplot coordinates { %Without
 		(2,1184)
@@ -236,6 +237,7 @@ The algorithm with the Elite Ant consistently outperforms the algorithm without 
 		(64,221)
 		(128,219)
 	};
+	\addlegendentry{Without Elite}
 	\end{axis}
 	\end{tikzpicture}&
 	\begin{tikzpicture}
@@ -255,6 +257,7 @@ The algorithm with the Elite Ant consistently outperforms the algorithm without 
 		(64,58.401)
 		(128,56.159)
 	};
+	\addlegendentry{With Elite}
 	
 	\addplot coordinates { %Without
 		(2,69.758)
@@ -265,6 +268,7 @@ The algorithm with the Elite Ant consistently outperforms the algorithm without 
 		(64,57.755)
 		(128,57.615)
 	};
+	\addlegendentry{Without Elite}
 	\end{axis}
 	\end{tikzpicture}
 \end{tabu}
@@ -286,6 +290,7 @@ The algorithm with the Elite Ant consistently outperforms the algorithm without 
 		xmode=log,
 		ymode=log,
 		log ticks with fixed point,
+		legend style={at={(0.02,0.98)},anchor=north west},
 		]
 		\addplot coordinates { %ST
 			(16,34.9)
@@ -297,6 +302,7 @@ The algorithm with the Elite Ant consistently outperforms the algorithm without 
 			(1024,409)
 			(2048,802)
 		};
+		\addlegendentry{Single Thread}
 		
 		\addplot coordinates { %MT
 			(16,11.4)
@@ -308,6 +314,7 @@ The algorithm with the Elite Ant consistently outperforms the algorithm without 
 			(1024,68)
 			(2048,128)
 		};
+		\addlegendentry{Multithreaded}
 		\end{axis}
 	\end{tikzpicture}
 	\end{minipage}
@@ -327,7 +334,7 @@ However, there was not a happy medium between having the culling happen to early
 	\begin{tikzpicture}[scale=0.9]
 	\begin{axis}[
 	xlabel = {Culling Rate (\%)},
-	ylabel = {Tour Length (1000s)},
+	ylabel = {\color{blue}Tour Length (1000s)},
 	axis y line*=left,
 	ylabel near ticks,
 	xmode=log,
@@ -345,7 +352,7 @@ However, there was not a happy medium between having the culling happen to early
 	\end{axis}
 	
 	\begin{axis}[
-	ylabel = {Iterations to Converge},
+	ylabel = {\color{red}Iterations to Converge},
 	axis y line*=right,
 	ylabel near ticks,
 	xmode=log,
@@ -373,16 +380,13 @@ The original way that I stored the matrix was using a HashMap of unordered pairs
 \subsection{Grouping}
 \begin{tabu}{X[c] X[c]}
 	\begin{minipage}{\linewidth}
-If we group nodes that are close to each other into groups, we can treat each group as a node in a new network. From here, we can solve the new network, and then solve each group. This can be done recursively --- we can multiple layers of grouping. This technique can produce an approximate solution very quickly, but adding more computation time does not generally improve the results.\\
+By grouping nodes that are close to each other, we can break the TSP into multiple smaller TSPs. This can be done recursively, with multiple layers of grouping, using the groups of the layer underneath as the nodes of this layer, until the uppermost level contains only one node. We then solve the uppermost layer, which is trivial due to it containing only one node. We then repeatedly solve the group represented by each node in the tour, replacing it with the solution of the layer below. When all nodes in the tour are part of the bottom layer, we are finished.\\
 
-Choosing how to group the nodes is the main challenge with this technique. This problem is much easier if the network exists in euclidean space. The method selected involved iteratively expanding the group from a start node, in each iteration adding the node with the lowest equivalent electrical resistance to the start node.\\
+The main challenges with this technique are how to group the nodes, and how to calculate the distances between nodes in the new network. Both of these problems are made much easier if the initial network exists in euclidean space. The method used involves iteratively building a group from a start node, where in each iteration we add the node with the lowest equivalent electrical resistance to the start node. The distances between nodes were calculated as the average distance between nodes in the two groups\\
 
-When treating the groups as nodes, calculating the distances between the nodes is also challenging. If they do not accurately represent how easy it is to move from one group to the other, then the intra-group algorithm will not be efficient. As we progress towards having many levels, these problems are exacerbated. I calculated the new distances to be equal to the average distance between nodes in the two groups.
+This algorithm tends to give approximate results very quickly, and significantly outperforms other algorithms when given less than a second to run. On the 535 node network, it was found that the grouping algorithm with Simulated Annealing could produce a tour of 61.8k in 0.15 seconds, whereas it took 0.5 seconds for standard Simulated Annealing to beat this score. On a network of 3000 nodes, this crossover point was increased to 1.5 seconds, and it should increase more as the size of the network increases.\\
 
-Once the groups have been generated, each group can be solved in a separate thread, without affecting results whatsoever. The ability to parallelise this algorithm is not particularly helpful, as adding more computation time does not increase the quality of the results much.\\
-
-This approach isn't optimised at all yet, and it wouldn't take much of an improvement in score for this to have a huge impact. The grouping algorithm could be very useful when working with graphs of millions of nodes. Preliminary testing on a graph of 3000 nodes showed this algorithm outperforming plain Simulated Annealing until over 1.5 seconds of computation time was allocated, as opposed to 0.5 seconds on 535 nodes.
-
+This approach is not yet optimised, and could see significant improvements. Specifically, it is not known what impact allocating more time to the initial grouping could achieve. The current grouping implementation is not capable of this. Allowing extra time for intra-group solving does not tend to improve the results much.\\
 	\end{minipage}&
 
 \begin{minipage}{\linewidth}
@@ -523,6 +527,7 @@ log ticks with fixed point,
 	(10.46,61.147)
 	(12.88,60.624)
 };
+\addlegendentry{SA with Grouping}
 
 \addplot coordinates { %Without
 	(0.078,91.704)
@@ -533,6 +538,7 @@ log ticks with fixed point,
 	(2.89,55.733)
 	(12.11,52.753)
 };
+\addlegendentry{Plain Simulated Annealing}
 \end{axis}
 \end{tikzpicture}
 \end{center}
